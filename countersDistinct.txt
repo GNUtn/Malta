@@ -1,0 +1,6 @@
+# Field, Preprocess, ExcludeByField	ExcludeCondition
+login	tr/[A-Z]/[a-z]/
+refer	tr/[A-Z]/[a-z]/
+host
+category		action	[^Denied]
+status

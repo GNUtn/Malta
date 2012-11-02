@@ -1,0 +1,1 @@
+login	^(anonymous|sarmientoba\\alumno01|\B)
