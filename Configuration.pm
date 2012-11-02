@@ -4,7 +4,7 @@ use Mouse;
 has 'log_dir' => (
 	is => 'rw',
 	isa => 'Str',
-	default => '/home/sergioo/logs/1/'
+	default => 'test-data/logs/'
 );
 
 has 'output_dir' => (
