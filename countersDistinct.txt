@@ -1,6 +1,6 @@
-# Field, Preprocess, ExcludeByField	ExcludeCondition
-login	tr/[A-Z]/[a-z]/
-refer	tr/[A-Z]/[a-z]/
-host
-category		action	[^Denied]
-status
+# Name, Field, Preprocess, ExcludeByField	ExcludeCondition	SummarizationFields
+Usuario	login	tr/[A-Z]/[a-z]/
+Pagina	refer	tr/[A-Z]/[a-z]/
+Host	host
+Categoria_denegada	category		action	[^Denied]
+Codigos_de_estado	status

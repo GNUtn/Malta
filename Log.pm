@@ -137,16 +137,16 @@ sub _load_counters_distinct {
 		chomp($line);
 		my @array = split( $self->separator, $line );
 		my $h     = $self->_counters_distincts_indexes();
-		my $index = firstidx { $_ eq $array[0] } @{ $self->structure };
-		my $indexExplude; 
-		if ($array[2]){
-		$indexExplude = firstidx { $_ eq $array[2] } @{ $self->structure };
+		my $index = firstidx { $_ eq $array[1] } @{ $self->structure };
+		my $indexExclude; 
+		if ($array[3]){
+			$indexExclude = firstidx { $_ eq $array[3] } @{ $self->structure };
 		}
-		$h->{ $array[0] } = [ $index, $array[1], $indexExplude, $array[3] ];
+		$h->{ $array[0] } = [ $index, $array[2], $indexExclude, $array[4] ];
 	}
 }
 
-#
+# Analiza la línea y devuelve si filtrada (procesada) o no
 sub _filter {
 	my $self = shift;
 
@@ -233,7 +233,7 @@ sub process {
 			$self->_update_counters_distincts( \@line_splited, $counter_distinct_totals );
 		}
 		
-		$self->_preprocess_line(\@line_splited);
+		#$self->_preprocess_line(\@line_splited);
 		#process minute
 		if ( $self->granularity eq 'minute' ) {
 			if ( $date_time->minute() != $last_date_time->minute() || $date_time->hour() != $last_date_time->hour() )
@@ -285,7 +285,7 @@ sub process {
 	}
 }
 
-sub _preprocess_line{
+sub _preprocess_line{#TODO: Cambiar esto a preprocess field ya que se pueden aplicar distintos preprocesamientos al mismo campo para distintas cuentas 
 	my $self = shift;
 	my $line_splited = shift;;
 	my $code = "";
@@ -298,18 +298,35 @@ sub _preprocess_line{
 	
 }
 
+sub _preprocess_field{
+	my $self = shift;
+	my $value = shift;
+	my $key = shift;
+	
+	if (${ $self->_counters_distincts_indexes() }{$key}[1]){
+		my $code ="";
+		$code = '$value =~ ' . ${ $self->_counters_distincts_indexes() }{$key}[1] . ';';
+		eval ($code);
+	}
+	return $value;
+}
+
 sub _update_counters_distincts {
 	my $self = shift;
 
 	my @line_splited     = @{ $_[0] };
 	my $counter_distinct = $_[1];
+	my $value_exclude = "";
+	my $value_field = "";
 	foreach my $counter_key ( keys %{ $self->_counters_distincts_indexes() } ) {
-		if ( ${ $self->_counters_distincts_indexes() }{$counter_key}[3] && ${ $self->_counters_distincts_indexes() }{$counter_key}[3] ){ 
-			if(!($line_splited[ ${ $self->_counters_distincts_indexes() }{$counter_key}[2] ] =~ m/${ $self->_counters_distincts_indexes() }{$counter_key}[3]/i)){
-				$counter_distinct->{$counter_key}->{ $line_splited[ ${ $self->_counters_distincts_indexes() }{$counter_key}[0] ] } += 1;				
+		$value_field = $self->_preprocess_field($line_splited[ ${ $self->_counters_distincts_indexes() }{$counter_key}[0] ], $counter_key);
+		if ( ${ $self->_counters_distincts_indexes() }{$counter_key}[2] && ${ $self->_counters_distincts_indexes() }{$counter_key}[3] ){# if ExcludeByField	is applied
+			$value_exclude = $self->_preprocess_field($line_splited[ ${ $self->_counters_distincts_indexes() }{$counter_key}[2] ], $counter_key);
+			if(!($value_exclude =~ m/${ $self->_counters_distincts_indexes() }{$counter_key}[3]/i)){
+				$counter_distinct->{$counter_key}->{ $value_field } += 1;				
 			}
 		}else{
-			$counter_distinct->{$counter_key}->{ $line_splited[ ${ $self->_counters_distincts_indexes() }{$counter_key}[0] ] } += 1;
+			$counter_distinct->{$counter_key}->{ $value_field } += 1;
 		}
 	}
 }
@@ -369,7 +386,7 @@ sub save_xmlT {
 	my $xml = XML::Writer->new( OUTPUT => $doc, DATA_MODE => 1 );    # || die ("\nUnable to create hours file ($file_name) in data directory.")
 
 	$xml->xmlDecl('UTF-8');
-	$xml->startTag($start_tag_name);
+	$xml->startTag('root');
 	$xml->startTag('lines_count');
 	$xml->characters($lines_count);
 	$xml->endTag();
