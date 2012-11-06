@@ -1,5 +1,6 @@
 package Parser;
 use Mouse;
+use Data::Dumper;
 require 'Utils.pm';
 require 'Configuration.pm';
 
@@ -26,14 +27,13 @@ around BUILDARGS => sub {
 sub parse_files {
 	my ( $self, $file_paths ) = @_;
 
-	foreach my $file_path (@{$file_paths}) {
+	foreach my $file_path ( @{$file_paths} ) {
 		$self->parse_file($file_path);
 	}
 
 	foreach my $report_generator ( @{ $self->report_generators } ) {
 		$report_generator->update_totals();
-		$report_generator->write_report( $self->config->output_dir )
-		  ;
+		$report_generator->write_report( $self->config->output_dir );
 	}
 }
 
@@ -52,16 +52,17 @@ sub parse_file {
 		}
 	}
 }
-
 sub is_excluded_line {
-	my ($self, $line) = @_;
-	#TODO
+	my ( $self, $line ) = @_;
+	foreach my $pattern ( @{ $self->config->exclude_patterns } ) {
+		if ( $line =~ m/$pattern/ ) { return 1 }
+	}
 	return 0;
 }
 
 sub is_valid_line {
-	my ($self, $line) = @_;
-	#TODO
-	return 1;
+	my ( $self, $line ) = @_;
+	my $pattern = $self->config->valid_line_pattern;
+	return $line =~ m/$pattern/;
 }
 1;
