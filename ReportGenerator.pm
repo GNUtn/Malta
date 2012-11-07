@@ -1,14 +1,15 @@
 package ReportGenerator;
 use Mouse;
 use Data::Dumper;
+use URI;
 require 'ReportWriter.pm';
 require 'Dates.pm';
 
 #Habrá una subclase de esta por cada reporte
 
 has 'writer' => (
-	is      => 'rw',
-	isa     => 'ReportWriter',
+	is  => 'rw',
+	isa => 'ReportWriter',
 );
 
 has 'data_hash' => (
@@ -40,7 +41,7 @@ around BUILDARGS => sub {
 	return $class->$orig(
 		config       => $_[0],
 		global_stats => $_[1],
-		writer => $_[2]
+		writer       => $_[2]
 	);
 };
 
@@ -73,7 +74,17 @@ sub get_file_name {
 
 sub is_acceso {
 	my ( $self, $values ) = @_;
+
+	#TODO
 	return 1;
+}
+
+sub parse_url {
+	my ( $self, $url ) = @_;
+	if ( $url !~ /.*\/\/.*/ ) {
+		$url = "http://" . $url;
+	}
+	return URI->new($url);
 }
 
 #Agregar acá métodos comunes a todos como es_acceso(), get_fecha(), etc.
