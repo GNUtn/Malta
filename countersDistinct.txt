@@ -1,6 +1,6 @@
 # Name, Field, Preprocess, ExcludeByField	ExcludeCondition	SummarizationFields
-Usuario	login	tr/[A-Z]/[a-z]/
-Pagina	refer	tr/[A-Z]/[a-z]/
 Host	host
+Paginas	page	tr/[A-Z]/[a-z]/
+Codigos_de_estado	status	s/^2\d\d$/Success/ s/^3\d\d$/Redirect/ s/^4\d\d$/Client&nbsp;error/ s/^5\d\d$/Server&nbsp;error/ s/^(\d\d\d\d+|1\d\d|\d\d|\d|(6|7|8|9)\d\d+)$/Otras/
 Categoria_denegada	category		action	[^Denied]
-Codigos_de_estado	status
+Usuario	login	tr/[A-Z]/[a-z]/

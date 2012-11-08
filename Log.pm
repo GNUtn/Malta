@@ -238,7 +238,7 @@ sub process {
 		if ( $self->granularity eq 'minute' ) {
 			if ( $date_time->minute() != $last_date_time->minute() || $date_time->hour() != $last_date_time->hour() )
 			{                                                       #TODO: add day, month and year
-				threads->new( \&save_xmlT, $minute_count, "/var/www/malta/data/minute_" . $last_date_time->strftime( "%Y%m%d%H%M" . ".xml" ),
+				threads->new( \&save_xmlT, $minute_count, "/var/www/MaltaWeb/data/minute_" . $last_date_time->strftime( "%Y%m%d%H%M" . ".xml" ),
 					$counter_distinct_minute, 'minute' );
 				$minute_count = 1;
 				$date_changed = 1;
@@ -254,7 +254,7 @@ sub process {
 			if ( $date_time->hour() != $last_date_time->hour() ) {
 
 				#				threads->new(\&merge_xmlT, 'hour', $last_date_time->strftime("%Y%m%d%H"));
-				threads->new( \&save_xmlT, $hour_count, "/var/www/malta/data/hour_" . $last_date_time->strftime( "%Y%m%d%H" . ".xml" ),
+				threads->new( \&save_xmlT, $hour_count, "/var/www/MaltaWeb/data/hour_" . $last_date_time->strftime( "%Y%m%d%H" . ".xml" ),
 					$counter_distinct_hour, 'hour' );
 				$hour_count   = 1;
 				$date_changed = 1;
@@ -272,30 +272,17 @@ sub process {
 		}
 	}
 	if ( $self->granularity eq 'minute' ) {
-		threads->new( \&save_xmlT, $minute_count, "/var/www/malta/data/minute_" . $last_date_time->strftime( "%Y%m%d%H%M" . ".xml" ),
+		threads->new( \&save_xmlT, $minute_count, "/var/www/MaltaWeb/data/minute_" . $last_date_time->strftime( "%Y%m%d%H%M" . ".xml" ),
 			$counter_distinct_minute, 'minute' );
 	}
 
 	if ($self->granularity eq 'minute' || $self->granularity eq 'hour'){
-		threads->new(\&save_xmlT, $hour_count , "/var/www/malta/data/hour_" . $last_date_time->strftime("%Y%m%d%H" . ".xml") , $counter_distinct_hour, 'hour');
+		threads->new(\&save_xmlT, $hour_count , "/var/www/MaltaWeb/data/hour_" . $last_date_time->strftime("%Y%m%d%H" . ".xml") , $counter_distinct_hour, 'hour');
 	}
-	threads->new(\&save_xmlT, $self->lines_processed() , "/var/www/malta/data/totals.xml" , $counter_distinct_totals, 'totals');
+	threads->new(\&save_xmlT, $self->lines_processed() , "/var/www/MaltaWeb/data/totals.xml" , $counter_distinct_totals, 'totals');
 	foreach my $thr ( threads->list() ) {
 		$thr->join();
 	}
-}
-
-sub _preprocess_line{#TODO: Cambiar esto a preprocess field ya que se pueden aplicar distintos preprocesamientos al mismo campo para distintas cuentas 
-	my $self = shift;
-	my $line_splited = shift;;
-	my $code = "";
-	foreach my $counter_key ( keys %{ $self->_counters_distincts_indexes() } ) {
-		if (${ $self->_counters_distincts_indexes() }{$counter_key}[1]){
-			$code = '@$line_splited[' . ${ $self->_counters_distincts_indexes() }{$counter_key}[0] . '] =~ ' . ${ $self->_counters_distincts_indexes() }{$counter_key}[1] . ';';
-			eval ($code);
-		}
-	}
-	
 }
 
 sub _preprocess_field{
@@ -304,9 +291,12 @@ sub _preprocess_field{
 	my $key = shift;
 	
 	if (${ $self->_counters_distincts_indexes() }{$key}[1]){
-		my $code ="";
-		$code = '$value =~ ' . ${ $self->_counters_distincts_indexes() }{$key}[1] . ';';
-		eval ($code);
+		foreach my $regex (split(' ', ${ $self->_counters_distincts_indexes() }{$key}[1])){
+			my $code ="";
+			$code = '$value =~ ' . $regex . ';';
+			eval ($code);	
+		}
+		
 	}
 	return $value;
 }
@@ -350,12 +340,12 @@ sub merge_xmlT {
 	my $input_file;
 	my $file;
 
-	open my $file_merge, "/var/www/malta/data/hour_" . $hour . ".xml";
+	open my $file_merge, "/var/www/MaltaWeb/data/hour_" . $hour . ".xml";
 	if ( $type eq 'hour' ) {
 		my $count;
 		for $count ( 0 .. 59 ) {
 			$count_str  = "" . $count;
-			$input_file = "/var/www/malta/data/minute_" . $hour . "$count_str.xml";
+			$input_file = "/var/www/MaltaWeb/data/minute_" . $hour . "$count_str.xml";
 			$count_str  = "0" . $count if ( $count < 10 );
 			if ( -e $input_file ) {
 				open $files[$count], "<$input_file" or die $!;
