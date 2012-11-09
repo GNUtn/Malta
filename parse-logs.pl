@@ -9,6 +9,7 @@ require 'PaginasReportGenerator.pm';
 require 'StatusReportGenerator.pm';
 require 'CategoriasReportGenerator.pm';
 require 'CategoriaUsuariosReportGenerator.pm';
+require 'SearchReportGenerator.pm';
 require 'GlobalStats.pm';
 require 'ReportWriter.pm';
 
@@ -22,6 +23,7 @@ push (@parsers, new PaginasReportGenerator($conf, $global_stats, $writer));
 push (@parsers, new StatusReportGenerator($conf, $global_stats, $writer));
 push (@parsers, new CategoriasReportGenerator($conf, $global_stats, $writer));
 push (@parsers, new CategoriaUsuariosReportGenerator($conf, $global_stats, $writer));
+push (@parsers, new SearchReportGenerator($conf, $global_stats, $writer));
 my $parser = new Parser( \@parsers, $conf);
 my @files = map {$conf->log_dir.$_} @{Utils->get_files_list($conf->log_dir)};
 $parser->parse_files(\@files);

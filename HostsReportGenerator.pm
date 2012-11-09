@@ -57,4 +57,14 @@ sub new_entry {
 	);
 	return \%entry;
 }
+
+sub get_level {
+	my ($self) = @_;
+	return 1;
+}
+
+sub get_fields {
+	my ($self) = @_;
+	return [qw(host)];
+}
 1;

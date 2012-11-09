@@ -42,4 +42,14 @@ sub new_entry {
 	);
 	return \%entry;
 }
+
+sub get_level {
+	my ($self) = @_;
+	return 3;
+}
+
+sub get_fields {
+	my ($self) = @_;
+	return [qw(categoria usuario pagina)];
+}
 1;
