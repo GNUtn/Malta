@@ -22,10 +22,11 @@ $log->separator($cfg->param("Logs.separator"));
 
 $log->process();
 
+
 #print "Lines: " . $log->lines_count() . ".\n";
 
 $log->close();
 
 undef $log;
 
-print "The end";
+print "The end\n";

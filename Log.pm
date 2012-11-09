@@ -133,16 +133,21 @@ sub _load_counters_distinct {
 
 	open( my $file, "countersDistinct.txt" ) || die("Unable to open filters file \"countersDistinct.txt\".");
 	while ( my $line = <$file> ) {
-		next if ( $line =~ /^#/i );                          #TODO: set comment char in configuration
-		chomp($line);
+		next if ( $line =~ /^#/i );                          	#TODO: set comment char in configuration
+		chomp($line);											#TODO: paste counterdistinct to object
 		my @array = split( $self->separator, $line );
 		my $h     = $self->_counters_distincts_indexes();
 		my $index = firstidx { $_ eq $array[1] } @{ $self->structure };
-		my $indexExclude; 
+		my $indexExclude;
+		my $indexSumarize; 
 		if ($array[3]){
 			$indexExclude = firstidx { $_ eq $array[3] } @{ $self->structure };
 		}
-		$h->{ $array[0] } = [ $index, $array[2], $indexExclude, $array[4] ];
+		if ($array[5]){
+			$indexSumarize = firstidx { $_ eq $array[5] } @{ $self->structure };
+		}
+		#campos del array: indice del campo a buscar, preprosesar, indice del campo a excluir, regex de exclusion, indice del campo a sumarizar
+		$h->{ $array[0] } = [ $index, $array[2], $indexExclude, $array[4], $indexSumarize ];
 	}
 }
 
@@ -313,10 +318,10 @@ sub _update_counters_distincts {
 		if ( ${ $self->_counters_distincts_indexes() }{$counter_key}[2] && ${ $self->_counters_distincts_indexes() }{$counter_key}[3] ){# if ExcludeByField	is applied
 			$value_exclude = $self->_preprocess_field($line_splited[ ${ $self->_counters_distincts_indexes() }{$counter_key}[2] ], $counter_key);
 			if(!($value_exclude =~ m/${ $self->_counters_distincts_indexes() }{$counter_key}[3]/i)){
-				$counter_distinct->{$counter_key}->{ $value_field } += 1;				
+				$counter_distinct->{$counter_key}->{ $value_field }[0] += 1;
 			}
 		}else{
-			$counter_distinct->{$counter_key}->{ $value_field } += 1;
+			$counter_distinct->{$counter_key}->{ $value_field }[0] += 1;
 		}
 	}
 }
@@ -387,9 +392,8 @@ sub save_xmlT {
 		$xml->endTag();
 		my $hits_count = 0;
 		foreach my $key2 ( sort keys %{ $ref_counter_distinct->{$key1} } ) {
-			my $hits = $ref_counter_distinct->{$key1}->{$key2};
-			$xml->startTag( $key1, 'name' => $key2 );
-			$xml->characters($hits);
+			my $hits = $ref_counter_distinct->{$key1}->{$key2}[0];
+			$xml->startTag( $key1, 'name' => $key2, 'hits' => $hits );
 			$hits_count += $hits;
 			$xml->endTag();
 		}
