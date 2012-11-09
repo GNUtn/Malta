@@ -47,7 +47,15 @@ around BUILDARGS => sub {
 
 sub write_report {
 	my ( $self, $output_dir ) = @_;
-	$self->writer->write( $self->data_hash, $output_dir, $self->get_file_name );
+	$self->writer->write( $self->data_hash, $output_dir . 'internal/',
+		$self->get_file_name );
+
+	my @aaData =
+	  DataHashFlatten->flatten( $self->get_level(), $self->data_hash, $self->get_fields() );
+	
+	my %data = ( aaData => \@aaData );
+		$self->writer->write(\%data, $output_dir . 'datatables/', $self->get_file_name );
+
 }
 
 sub parse_values {

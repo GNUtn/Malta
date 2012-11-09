@@ -18,7 +18,12 @@ sub write_report {
 		'accesos'    => $self->global_stats->{accesos},
 		'trafico'    => $self->global_stats->{trafico}
 	);
-	$self->writer->write( \%data, $output_dir, $self->get_file_name );
+	$self->writer->write( \%data, $output_dir . 'internal/',
+		$self->get_file_name );
+	my @aaData = ( \%data );
+	my %datatablesData = ( aaData => \@aaData );
+	$self->writer->write( \%datatablesData, $output_dir . 'datatables/',
+		$self->get_file_name );
 }
 
 sub update_totals {

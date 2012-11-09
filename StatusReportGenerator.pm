@@ -1,5 +1,6 @@
 package StatusReportGenerator;
 use Mouse;
+require 'DataHashFlatten.pm';
 extends 'ReportGenerator';
 require 'Utils.pm';
 
@@ -63,6 +64,16 @@ sub get_category {
 	else {
 		return "Other";
 	}
+}
+
+sub get_level {
+	my ($self) = @_;
+	return 2;
+}
+
+sub get_fields {
+	my ($self) = @_;
+	return [qw(categoria status)];
 }
 
 has 'details' => (

@@ -46,4 +46,14 @@ sub new_entry {
 	);
 	return \%entry;
 }
+
+sub get_level {
+	my ($self) = @_;
+	return 2;
+}
+
+sub get_fields {
+	my ($self) = @_;
+	return [qw(destino pagina)];
+}
 1;
