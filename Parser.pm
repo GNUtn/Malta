@@ -32,7 +32,7 @@ sub parse_files {
 	}
 
 	foreach my $report_generator ( @{ $self->report_generators } ) {
-		$report_generator->update_totals();
+		$report_generator->post_process();
 		$report_generator->write_report( $self->config->output_dir );
 	}
 }

@@ -11,19 +11,6 @@ sub parse_values {
 	$entry->{ocurrencias} += 1;
 }
 
-sub update_totals {
-	my ($self) = @_;
-
-	foreach my $destino ( keys %{ $self->data_hash } ) {
-		foreach my $pagina ( keys %{ $self->data_hash->{$destino} } ) {
-			$self->data_hash->{$destino}->{$pagina}->{porcentaje} =
-			  Utils->porcentaje(
-				$self->data_hash->{$destino}->{$pagina}->{ocurrencias},
-				$self->global_stats->{peticiones} );
-		}
-	}
-}
-
 sub get_file_name {
 	return "paginas.json";
 }
@@ -40,10 +27,7 @@ sub get_entry {
 
 sub new_entry {
 	my ($self) = @_;
-	my %entry = (
-		ocurrencias => 0,
-		porcentaje  => 0
-	);
+	my %entry = ( ocurrencias => 0, );
 	return \%entry;
 }
 

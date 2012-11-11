@@ -13,16 +13,6 @@ sub parse_values {
 	}
 }
 
-sub update_totals {
-	my ($self) = @_;
-
-	foreach my $categoria ( keys %{ $self->data_hash } ) {
-		$self->data_hash->{$categoria}->{porcentaje} =
-		  Utils->porcentaje( $self->data_hash->{$categoria}->{ocurrencias},
-			$self->global_stats->{peticiones} );
-	}
-}
-
 sub get_file_name {
 	return "categorias.json";
 }
@@ -41,7 +31,6 @@ sub new_entry {
 	my ($self) = @_;
 	my %entry = (
 		ocurrencias => 0,
-		porcentaje  => 0
 	);
 	return \%entry;
 }

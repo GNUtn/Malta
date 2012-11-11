@@ -2,31 +2,26 @@ package GlobalStatsReportGenerator;
 use Mouse;
 extends 'ReportGenerator';
 
+sub BUILD {
+	my $self = shift;
+	$self->data_hash->{peticiones} = 0;
+	$self->data_hash->{trafico}    = 0;
+}
+
 sub parse_values {
 	my ( $self, $values ) = @_;
-	$self->global_stats->peticiones( $self->global_stats->peticiones + 1 );
-	$self->global_stats->accesos( $self->global_stats->accesos + 1 )
-	  if $self->is_acceso($values);
-	$self->global_stats->trafico( $self->global_stats->peticiones +
-		  @$values[ $self->config->{fields}->{'cs-bytes'} ] );
+	$self->data_hash->{peticiones} += 1;
+	$self->data_hash->{trafico}    += $self->get_trafico($values);
 }
 
 sub write_report {
 	my ( $self, $output_dir ) = @_;
-	my %data = (
-		'peticiones' => $self->global_stats->{peticiones},
-		'accesos'    => $self->global_stats->{accesos},
-		'trafico'    => $self->global_stats->{trafico}
-	);
-	$self->writer->write( \%data, $output_dir . 'internal/',
+	$self->writer->write( $self->data_hash, $output_dir . 'internal/',
 		$self->get_file_name );
-	my @aaData = ( \%data );
+	my @aaData = ( $self->data_hash );
 	my %datatablesData = ( aaData => \@aaData );
 	$self->writer->write( \%datatablesData, $output_dir . 'datatables/',
 		$self->get_file_name );
-}
-
-sub update_totals {
 }
 
 sub get_file_name {

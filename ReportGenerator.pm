@@ -23,11 +23,6 @@ has 'config' => (
 	isa => 'Configuration',
 );
 
-has 'global_stats' => (
-	is  => 'rw',
-	isa => 'GlobalStats',
-);
-
 has 'date_utils' => (
 	is      => 'rw',
 	isa     => 'Dates',
@@ -40,8 +35,7 @@ around BUILDARGS => sub {
 
 	return $class->$orig(
 		config       => $_[0],
-		global_stats => $_[1],
-		writer       => $_[2]
+		writer       => $_[1]
 	);
 };
 
@@ -51,40 +45,28 @@ sub write_report {
 		$self->get_file_name );
 
 	my @aaData =
-	  DataHashFlatten->flatten( $self->get_level(), $self->data_hash, $self->get_fields() );
-	
+	  DataHashFlatten->flatten( $self->get_level(), $self->data_hash,
+		$self->get_fields() );
+
 	my %data = ( aaData => \@aaData );
-		$self->writer->write(\%data, $output_dir . 'datatables/', $self->get_file_name );
+	$self->writer->write( \%data, $output_dir . 'datatables/',
+		$self->get_file_name );
 
 }
 
 sub parse_values {
-	my ( $self, $values ) = @_;
-
 	# TO BE IMPLEMENTED BY SUBCLASSES
 	#Acá se hacen cosas con los valores y se suman a hash_data
 }
 
-sub update_totals {
-	my ($self) = @_;
-
+sub post_process {
 	# TO BE IMPLEMENTED BY SUBCLASSES
 	#Acá se calculan los porcentajes con los totales y todo eso
-	return 1;
 }
 
 sub get_file_name {
-	my ($self) = @_;
-
 	# TO BE IMPLEMENTED BY SUBCLASSES
 	#Devolver el nombre del archivo a escribir para cada reporte
-}
-
-sub is_acceso {
-	my ( $self, $values ) = @_;
-
-	#TODO
-	return 1;
 }
 
 sub parse_url {
@@ -93,6 +75,12 @@ sub parse_url {
 		$url = "http://" . $url;
 	}
 	return URI->new($url);
+}
+
+sub get_trafico {
+	my ( $self, $values ) = @_;
+	return ( @$values[ $self->config->{fields}->{'cs-bytes'} ] +
+		  @$values[ $self->config->{fields}->{'sc-bytes'} ] );
 }
 
 #Agregar acá métodos comunes a todos como es_acceso(), get_fecha(), etc.

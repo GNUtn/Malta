@@ -17,10 +17,6 @@ sub parse_values {
 	}
 }
 
-sub update_totals {
-	
-}
-
 sub get_file_name {
 	return "categoria_usuario.json";
 }

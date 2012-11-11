@@ -11,18 +11,6 @@ sub parse_values {
 	$entry->{ocurrencias} += 1;
 }
 
-sub update_totals {
-	my ($self) = @_;
-	foreach my $categoria ( keys %{ $self->data_hash } ) {
-		foreach my $status ( keys %{ $self->data_hash->{$categoria} } ) {
-			$self->data_hash->{$categoria}->{$status}->{porcentaje} =
-			  Utils->porcentaje(
-				$self->data_hash->{$categoria}->{$status}->{ocurrencias},
-				$self->global_stats->{peticiones} );
-		}
-	}
-}
-
 sub get_file_name {
 	return "status.json";
 }
@@ -41,8 +29,7 @@ sub new_entry {
 	my ( $self, $status ) = @_;
 	my %entry = (
 		descripcion => $self->details->{$status},
-		ocurrencias => 0,
-		porcentaje  => 0
+		ocurrencias => 0
 	);
 	return \%entry;
 }
