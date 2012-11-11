@@ -1,5 +1,6 @@
 use warnings;
 use strict;
+use Benchmark;
 require 'Configuration.pm';
 require 'Utils.pm';
 require 'Parser.pm';
@@ -13,6 +14,7 @@ require 'SearchReportGenerator.pm';
 require 'GlobalStats.pm';
 require 'ReportWriter.pm';
 
+my $t0 = Benchmark->new;
 my $conf = new Configuration();
 my $global_stats = new GlobalStats();
 my $writer = new ReportWriter();
@@ -27,3 +29,6 @@ push (@parsers, new SearchReportGenerator($conf, $global_stats, $writer));
 my $parser = new Parser( \@parsers, $conf);
 my @files = map {$conf->log_dir.$_} @{Utils->get_files_list($conf->log_dir)};
 $parser->parse_files(\@files);
+my $tf = Benchmark->new;
+my $td = timediff($tf, $t0);
+print "Time elapsed: ", timestr($td),"\n";

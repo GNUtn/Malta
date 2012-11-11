@@ -79,57 +79,51 @@ __END__
 
 =head1 NAME
 
-Data::Hash::Flatten - isomorphic denormalization of nested HoH into AoH
+DataHashFlatten - isomorphic denormalization of nested HoH into AoH
 
 =head1 SYNOPSIS
 
-  use Data::Hash::Flatten;
+  use DataHashFlatten;
 
   my $a = { bill => { '5/27/96' => { 'a.dat' => 1, 'b.txt' => 2, 'c.lsp' => 3 } },
             jimm => { '6/22/98' => { 'x.prl' => 9, 'y.pyt' => 8, 'z.tcl' => 7 } } } ;
 
 
-  my @a = Data::Hash::Flatten->flatten($a, [qw(name date file)]);
+  my @a = DataHashFlatten->flatten(2, $a, [qw(name date)]);
   
   use Data::Dumper;
   print Dumper(\@a);
 
   $VAR1 = [
           {
-            'hits' => 7,
             'date' => '6/22/98',
             'name' => 'jimm',
-            'file' => 'z.tcl'
+            'z.tcl' => 7
           },
           {
-            'hits' => 8,
             'date' => '6/22/98',
             'name' => 'jimm',
-            'file' => 'y.pyt'
+            'y.pyt' => 8
           },
           {
-            'hits' => 9,
             'date' => '6/22/98',
             'name' => 'jimm',
-            'file' => 'x.prl'
+            'x.prl' => 9
           },
           {
-            'hits' => 3,
             'date' => '5/27/96',
             'name' => 'bill',
-            'file' => 'c.lsp'
+            'c.lsp' => 3
           },
           {
-            'hits' => 2,
             'date' => '5/27/96',
             'name' => 'bill',
-            'file' => 'b.txt'
+            'b.txt' => 2
           },
           {
-            'hits' => 1,
             'date' => '5/27/96',
             'name' => 'bill',
-            'file' => 'a.dat'
+            'a.dat' => 1
           }
         ];
 
@@ -153,7 +147,7 @@ None by default.
 
 =head1 AUTHOR
 
-T. M. Brannon, <tbone@cpan.org>
+Sergio Orbe, based in Data::Hash::Flatten from T. M. Brannon, <tbone@cpan.org>
 
 =head1 SEE ALSO
 
