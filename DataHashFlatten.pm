@@ -3,46 +3,17 @@ package DataHashFlatten;
 require 5.005_62;
 use strict;
 use warnings;
-use Data::Dumper;
-
-require Exporter;
-
-our @ISA = qw(Exporter);
-
-# Items to export into callers namespace by default. Note: do not export
-# names by default without a very good reason. Use EXPORT_OK instead.
-# Do not simply export all your public functions/methods/constants.
-
-# This allows declaration	use Data::Hash::Flatten ':all';
-# If you do not need this, moving things directly into @EXPORT or @EXPORT_OK
-# will save memory.
-our %EXPORT_TAGS = (
-	'all' => [
-		qw(
-
-		  )
-	]
-);
-
-our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
-
-our @EXPORT = qw(
-
-);
-our $VERSION = '0.03';
 
 our @flattened;
 
 sub flatten {
-	my ( undef, $level, $href, $field, $depth, $flat_rec ) = @_;
-
+	my ( $class, $level, $href, $field, $depth, $flat_rec ) = @_;
 	@flattened = () unless defined($depth);
 	$depth     = 0  unless defined($depth);
 
-	if ( ref $href && $level > $depth ) {
+	if ( $level > $depth ) {
 		my @key = keys %$href;
 
-# warn "ref $href succeeded. depth: $depth keys: @key, the ref:", Dumper($href);
 		for my $key_i ( 0 .. $#key ) {
 
 			my $key = $key[$key_i];
@@ -62,12 +33,8 @@ sub flatten {
 		for my $key ( keys %$href ) {
 			$flat_rec->{$key} = ${$href}{$key};
 		}
-
-#warn "no more refs. we are at bottom. pushing:", Dumper($flat_rec), "here is href:", Dumper($href), "depth $depth";
-		use Storable qw(dclone);
-
-		my $new_rec = dclone $flat_rec;
-		push @flattened, $new_rec;
+		my %new_rec = %{$flat_rec};
+		push @flattened, \%new_rec;
 	}
 
 	@flattened;
