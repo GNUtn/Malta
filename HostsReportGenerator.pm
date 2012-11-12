@@ -8,23 +8,18 @@ sub parse_values {
 	my $host  = @$values[ $self->config->{fields}->{'c-ip'} ];
 	my $entry = $self->get_entry($host);
 	$entry->{peticiones} += 1;
-	$entry->{trafico}    += $self->get_trafico($values);
-	my $request_date =
-	  $self->date_utils->parse_date(
-		@$values[ $self->config->{fields}->{'date'} ], 'AAAA/MM/DD' );
-	if ($self->date_utils->compare( $entry->{last_occurrence}, $request_date ) < 0)
-	{
+	$entry->{trafico} += $self->get_trafico($values);
+	my $request_date = @$values[ $self->config->{fields}->{'date'} ];
+	
+	if ($request_date->compare_to($entry->{last_occurrence}) < 0 ) {
 		$entry->{last_occurrence} = $request_date;
 	}
 }
-
 sub post_process {
 	my ($self) = @_;
 	foreach my $host ( keys %{ $self->data_hash } ) {
 		my $entry = $self->data_hash->{$host};
-		$entry->{last_occurrence} =
-		  $self->date_utils->toString( $entry->{last_occurrence},
-			'AAAA/MM/DD', '-' );
+		$entry->{last_occurrence} = $entry->{last_occurrence}->to_string;
 	}
 }
 
@@ -45,7 +40,7 @@ sub new_entry {
 	my %entry = (
 		peticiones      => 0,
 		trafico         => 0,
-		last_occurrence => $self->date_utils->oldest_date(),
+		last_occurrence => Date->new(),
 	);
 	return \%entry;
 }

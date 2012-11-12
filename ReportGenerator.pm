@@ -3,7 +3,7 @@ use Mouse;
 use Data::Dumper;
 use URI;
 require 'ReportWriter.pm';
-require 'Dates.pm';
+require 'Date.pm';
 
 #Habrá una subclase de esta por cada reporte
 
@@ -21,12 +21,6 @@ has 'data_hash' => (
 has 'config' => (
 	is  => 'rw',
 	isa => 'Configuration',
-);
-
-has 'date_utils' => (
-	is      => 'rw',
-	isa     => 'Dates',
-	default => sub { new Dates() }
 );
 
 around BUILDARGS => sub {

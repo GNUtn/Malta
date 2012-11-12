@@ -47,11 +47,14 @@ sub parse_file {
 
 		my @values = split( $self->config->field_sep, $line );
 
+		$self->pre_process_values( \@values );
+
 		foreach my $report_generator ( @{ $self->report_generators } ) {
 			$report_generator->parse_values( \@values );
 		}
 	}
 }
+
 sub is_excluded_line {
 	my ( $self, $line ) = @_;
 	foreach my $pattern ( @{ $self->config->exclude_patterns } ) {
@@ -64,5 +67,10 @@ sub is_valid_line {
 	my ( $self, $line ) = @_;
 	my $pattern = $self->config->valid_line_pattern;
 	return $line =~ m/$pattern/;
+}
+
+sub pre_process_values {
+	my ( $self, $values ) = @_;
+	@$values[ $self->config->{fields}->{'date'} ] = Date->new(@$values[ $self->config->{fields}->{'date'} ]);
 }
 1;

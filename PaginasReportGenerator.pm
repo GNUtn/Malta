@@ -9,6 +9,7 @@ sub parse_values {
 	my $uri   = $self->parse_url($url);
 	my $entry = $self->get_entry( $uri->host, $uri->path );
 	$entry->{ocurrencias} += 1;
+	$entry->{trafico} += $self->get_trafico($values);
 }
 
 sub get_file_name {
@@ -27,7 +28,7 @@ sub get_entry {
 
 sub new_entry {
 	my ($self) = @_;
-	my %entry = ( ocurrencias => 0, );
+	my %entry = ( ocurrencias => 0, trafico => 0);
 	return \%entry;
 }
 
