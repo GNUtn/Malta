@@ -4,33 +4,26 @@ require 5.005_62;
 use strict;
 use warnings;
 
-our @flattened;
+our @flattened=();
 
 sub flatten {
 	my ( $class, $level, $href, $field, $depth, $flat_rec ) = @_;
-	@flattened = () unless defined($depth);
 	$depth     = 0  unless defined($depth);
+	my @key = keys %$href;
 
 	if ( $level > $depth ) {
-		my @key = keys %$href;
-
 		for my $key_i ( 0 .. $#key ) {
-
 			my $key = $key[$key_i];
-
-			#warn "KEY: $key";
 			$flat_rec->{ $field->[$depth] } = $key;
 
-			#warn "(depth $depth) flat_rec->{$field->[$depth]} = $key";
-
-			DataHashFlatten->flatten(
+			$class->flatten(
 				$level,     $href->{$key}, $field,
 				$depth + 1, $flat_rec,     @flattened
 			);
 		}
 	}
 	else {
-		for my $key ( keys %$href ) {
+		for my $key (@key) {
 			$flat_rec->{$key} = ${$href}{$key};
 		}
 		my %new_rec = %{$flat_rec};

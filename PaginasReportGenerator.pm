@@ -26,9 +26,32 @@ sub get_entry {
 	return $self->data_hash->{$destino}->{$pagina};
 }
 
+sub write_report {
+	my ( $self, $output_dir ) = @_;
+
+	$self->writer->write( $self->data_hash, $output_dir . 'internal/',
+		$self->get_file_name );
+
+	my @aaData = ();
+	foreach my $destino ( keys %{ $self->data_hash } ) {
+		foreach my $path ( keys %{ $self->data_hash->{$destino} } ) {
+			my %entry;
+			$entry{destino} = $destino;
+			$entry{pagina}  = $path;
+			$entry{ocurrencias} =
+			  $self->data_hash->{$destino}->{$path}->{ocurrencias};
+			$entry{trafico} = $self->data_hash->{$destino}->{$path}->{trafico};
+			push @aaData, \%entry;
+		}
+	}
+	my %data = ( aaData => \@aaData );
+	$self->writer->write( \%data, $output_dir . 'datatables/',
+		$self->get_file_name );
+}
+
 sub new_entry {
 	my ($self) = @_;
-	my %entry = ( ocurrencias => 0, trafico => 0);
+	my %entry = ( ocurrencias => 0, trafico => 0 );
 	return \%entry;
 }
 
