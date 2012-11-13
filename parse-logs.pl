@@ -12,6 +12,7 @@ require 'CategoriasReportGenerator.pm';
 require 'CategoriaUsuariosReportGenerator.pm';
 require 'SearchReportGenerator.pm';
 require 'ReferredReportGenerator.pm';
+require 'UsuarioTraficoReportGenerator.pm';
 require 'ReportWriter.pm';
 
 my $t0 = Benchmark->new;
@@ -26,6 +27,7 @@ push (@parsers, new CategoriasReportGenerator($conf, $writer));
 push (@parsers, new CategoriaUsuariosReportGenerator($conf, $writer));
 push (@parsers, new SearchReportGenerator($conf, $writer));
 push (@parsers, new ReferredReportGenerator($conf, $writer));
+push (@parsers, new UsuarioTraficoReportGenerator($conf, $writer));
 my $parser = new Parser( \@parsers, $conf);
 my @files = map {$conf->log_dir.$_} @{Utils->get_files_list($conf->log_dir)};
 $parser->parse_files(\@files);
