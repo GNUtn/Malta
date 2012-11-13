@@ -28,8 +28,8 @@ around BUILDARGS => sub {
 	my $class = shift;
 
 	return $class->$orig(
-		config       => $_[0],
-		writer       => $_[1]
+		config => $_[0],
+		writer => $_[1]
 	);
 };
 
@@ -49,16 +49,19 @@ sub write_report {
 }
 
 sub parse_values {
+
 	# TO BE IMPLEMENTED BY SUBCLASSES
 	#Acá se hacen cosas con los valores y se suman a hash_data
 }
 
 sub post_process {
+
 	# TO BE IMPLEMENTED BY SUBCLASSES
 	#Acá se calculan los porcentajes con los totales y todo eso
 }
 
 sub get_file_name {
+
 	# TO BE IMPLEMENTED BY SUBCLASSES
 	#Devolver el nombre del archivo a escribir para cada reporte
 }
