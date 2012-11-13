@@ -1,6 +1,7 @@
 #TODO: paste this file to xml or config file
-# Name, Field, Preprocess, ExcludeByField	ExcludeCondition	SummarizationFields
+# Name, Counters Fields, Preprocess, ExcludeByField,	ExcludeCondition,	SummarizationFields
 Categoria_denegada	category		action	[^Denied]
+# trafico es requetesize o cs-bytes + sc-bytes?
 Usuario	login	tr/[A-Z]/[a-z]/			requetesize
 Host	host
 Paginas	page	tr/[A-Z]/[a-z]/

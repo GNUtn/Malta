@@ -243,7 +243,7 @@ sub process {
 		if ( $self->granularity eq 'minute' ) {
 			if ( $date_time->minute() != $last_date_time->minute() || $date_time->hour() != $last_date_time->hour() )
 			{                                                       #TODO: add day, month and year
-				threads->new( \&save_xmlT, $minute_count, "/var/www/MaltaWeb/data/minute_" . $last_date_time->strftime( "%Y%m%d%H%M" . ".xml" ),
+				threads->new( \&save_xmlT, $self, $minute_count, "/var/www/MaltaWeb/data/minute_" . $last_date_time->strftime( "%Y%m%d%H%M" . ".xml" ),
 					$counter_distinct_minute, 'minute' );
 				$minute_count = 1;
 				$date_changed = 1;
@@ -259,7 +259,7 @@ sub process {
 			if ( $date_time->hour() != $last_date_time->hour() ) {
 
 				#				threads->new(\&merge_xmlT, 'hour', $last_date_time->strftime("%Y%m%d%H"));
-				threads->new( \&save_xmlT, $hour_count, "/var/www/MaltaWeb/data/hour_" . $last_date_time->strftime( "%Y%m%d%H" . ".xml" ),
+				threads->new( \&save_xmlT, $self, $hour_count, "/var/www/MaltaWeb/data/hour_" . $last_date_time->strftime( "%Y%m%d%H" . ".xml" ),
 					$counter_distinct_hour, 'hour' );
 				$hour_count   = 1;
 				$date_changed = 1;
@@ -277,14 +277,14 @@ sub process {
 		}
 	}
 	if ( $self->granularity eq 'minute' ) {
-		threads->new( \&save_xmlT, $minute_count, "/var/www/MaltaWeb/data/minute_" . $last_date_time->strftime( "%Y%m%d%H%M" . ".xml" ),
+		threads->new( \&save_xmlT, $self, $minute_count, "/var/www/MaltaWeb/data/minute_" . $last_date_time->strftime( "%Y%m%d%H%M" . ".xml" ),
 			$counter_distinct_minute, 'minute' );
 	}
 
 	if ($self->granularity eq 'minute' || $self->granularity eq 'hour'){
-		threads->new(\&save_xmlT, $hour_count , "/var/www/MaltaWeb/data/hour_" . $last_date_time->strftime("%Y%m%d%H" . ".xml") , $counter_distinct_hour, 'hour');
+		threads->new(\&save_xmlT, $self, $hour_count , "/var/www/MaltaWeb/data/hour_" . $last_date_time->strftime("%Y%m%d%H" . ".xml") , $counter_distinct_hour, 'hour');
 	}
-	threads->new(\&save_xmlT, $self->lines_processed() , "/var/www/MaltaWeb/data/totals.xml" , $counter_distinct_totals, 'totals');
+	threads->new(\&save_xmlT, $self, $self->lines_processed() , "/var/www/MaltaWeb/data/totals.xml" , $counter_distinct_totals, 'totals');
 	foreach my $thr ( threads->list() ) {
 		$thr->join();
 	}
@@ -318,10 +318,16 @@ sub _update_counters_distincts {
 		if ( ${ $self->_counters_distincts_indexes() }{$counter_key}[2] && ${ $self->_counters_distincts_indexes() }{$counter_key}[3] ){# if ExcludeByField	is applied
 			$value_exclude = $self->_preprocess_field($line_splited[ ${ $self->_counters_distincts_indexes() }{$counter_key}[2] ], $counter_key);
 			if(!($value_exclude =~ m/${ $self->_counters_distincts_indexes() }{$counter_key}[3]/i)){
-				$counter_distinct->{$counter_key}->{ $value_field }[0] += 1;
+				$counter_distinct->{$counter_key}->{ $value_field }[0][0] += 1; #add to counter
+				if (${ $self->_counters_distincts_indexes() }{$counter_key}[4]){ #if summarize
+					$counter_distinct->{$counter_key}->{ $value_field }[1][0] += $line_splited[ ${ $self->_counters_distincts_indexes() }{$counter_key}[4] ]; #add to summarizer
+				}
 			}
 		}else{
-			$counter_distinct->{$counter_key}->{ $value_field }[0] += 1;
+			$counter_distinct->{$counter_key}->{ $value_field }[0][0] += 1;
+			if (${ $self->_counters_distincts_indexes() }{$counter_key}[4]){ #if summarize
+				$counter_distinct->{$counter_key}->{ $value_field }[1][0] += $line_splited[ ${ $self->_counters_distincts_indexes() }{$counter_key}[4] ]; #add to summarizer
+			}
 		}
 	}
 }
@@ -373,6 +379,8 @@ sub merge_xmlT {
 }
 
 sub save_xmlT {    
+	my $self = shift;
+	
 	my $lines_count          = $_[0];
 	my $filename             = $_[1];
 	my $ref_counter_distinct = $_[2];
@@ -392,8 +400,13 @@ sub save_xmlT {
 		$xml->endTag();
 		my $hits_count = 0;
 		foreach my $key2 ( sort keys %{ $ref_counter_distinct->{$key1} } ) {
-			my $hits = $ref_counter_distinct->{$key1}->{$key2}[0];
-			$xml->startTag( $key1, 'name' => $key2, 'hits' => $hits );
+			my $hits = $ref_counter_distinct->{$key1}->{$key2}[0][0];
+			if (${ $self->_counters_distincts_indexes() }{$key1}[4]){ #if summarize
+				my $sum = $ref_counter_distinct->{$key1}->{$key2}[1][0];
+				$xml->startTag( $key1, 'name' => $key2, 'hits' => $hits, 'sum' => $sum);
+			}else{
+				$xml->startTag( $key1, 'name' => $key2, 'hits' => $hits);
+			}
 			$hits_count += $hits;
 			$xml->endTag();
 		}
