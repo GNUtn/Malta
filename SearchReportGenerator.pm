@@ -6,13 +6,28 @@ extends 'ReportGenerator';
 require 'Utils.pm';
 
 sub parse_values {
+	#Por ahora, sólo busca para google, yahoo, bing y algún otro que
+	#tenga /search?q= en la url
 	my ( $self, $values ) = @_;
 
-	my $url   = @$values[ $self->config->{fields}->{'cs-uri'} ];
-	my $uri   = $self->parse_url($url);
-	if ($uri->query_param('q')) {
-		my $entry = $self->get_entry( $uri->query_param('q') );
-		$entry->{ocurrencias} += 1;
+	my $url = @$values[ $self->config->{fields}->{'cs-uri'} ];
+	my $uri = $self->parse_url($url);
+
+	if ( $uri->path =~ m/search/ ) {
+		my $query;
+		if ( $uri->query_param('oq') ) {
+			$query = $uri->query_param('oq');
+		}
+		elsif ( $uri->query_param('q') ) {
+			$query = $uri->query_param('q');
+		}
+		elsif ( $uri->query_param('p') ) {
+			$query = $uri->query_param('p');
+		}
+		if ( $query && length($query ) > $self->config->search_length ) {
+			my $entry = $self->get_entry( $query );
+			$entry->{ocurrencias} += 1;
+		}
 	}
 }
 
