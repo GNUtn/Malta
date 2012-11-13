@@ -99,4 +99,10 @@ has 'search_length' => (
 	isa     => 'Int',
 	default => '3'
 );
+
+has 'top_limit' => (
+	is      => 'rw',
+	isa     => 'Int',
+	default => '10000'
+);
 1;

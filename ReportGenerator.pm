@@ -1,6 +1,5 @@
 package ReportGenerator;
 use Mouse;
-use Data::Dumper;
 use URI;
 require 'ReportWriter.pm';
 require 'Date.pm';
@@ -45,7 +44,21 @@ sub write_report {
 	my %data = ( aaData => \@aaData );
 	$self->writer->write( \%data, $output_dir . 'datatables/',
 		$self->get_file_name );
+	
+	$self->write_top(\%data, $output_dir);
 
+}
+
+sub write_top {
+	my ($self, $data, $output_dir) = @_;
+	my $aaData = $data->{aaData};
+	if ((scalar @$aaData) > $self->config->top_limit) {
+		my @new = @$aaData[0 .. $self->config->top_limit];
+		$data->{aaData} = \@new;
+	}
+	$self->writer->write( $data, $output_dir . 'datatables/top/',
+		$self->get_file_name );
+		
 }
 
 sub parse_values {

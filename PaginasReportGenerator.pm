@@ -47,6 +47,8 @@ sub write_report {
 	my %data = ( aaData => \@aaData );
 	$self->writer->write( \%data, $output_dir . 'datatables/',
 		$self->get_file_name );
+	
+	$self->write_top(\%data, $output_dir);
 }
 
 sub new_entry {
