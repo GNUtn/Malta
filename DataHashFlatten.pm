@@ -8,6 +8,7 @@ our @flattened=();
 
 sub flatten {
 	my ( $class, $level, $href, $field, $depth, $flat_rec ) = @_;
+	@flattened=() unless defined($depth);
 	$depth     = 0  unless defined($depth);
 	my @key = keys %$href;
 
