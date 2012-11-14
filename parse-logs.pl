@@ -35,4 +35,5 @@ my @files = map {$conf->log_dir.$_} @{Utils->get_files_list($conf->log_dir)};
 $parser->parse_files(\@files);
 my $tf = Benchmark->new;
 my $td = timediff($tf, $t0);
+print "Done.\n";
 print "Time elapsed: ", timestr($td),"\n";

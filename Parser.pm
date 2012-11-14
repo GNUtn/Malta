@@ -40,6 +40,8 @@ sub parse_files {
 sub parse_file {
 	my ( $self, $file_path ) = @_;
 	open( INPUT, "<$file_path" ) or die $!, $file_path;
+	
+	print "Computing data from file: ", $file_path, "...\n";
 
 	while (<INPUT>) {
 		my $line = Utils->rstrip($_);

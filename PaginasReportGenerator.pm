@@ -26,29 +26,20 @@ sub get_entry {
 	return $self->data_hash->{$destino}->{$pagina};
 }
 
-sub write_report {
-	my ( $self, $output_dir ) = @_;
-
-	$self->writer->write( $self->data_hash, $output_dir . 'internal/',
-		$self->get_file_name );
-
+sub flatten_data {
+	my ($self) = @_;
 	my @aaData = ();
 	foreach my $destino ( keys %{ $self->data_hash } ) {
 		foreach my $path ( keys %{ $self->data_hash->{$destino} } ) {
 			my %entry;
 			$entry{destino} = $destino;
 			$entry{pagina}  = $path;
-			$entry{ocurrencias} =
-			  $self->data_hash->{$destino}->{$path}->{ocurrencias};
+			$entry{ocurrencias} = $self->data_hash->{$destino}->{$path}->{ocurrencias};
 			$entry{trafico} = $self->data_hash->{$destino}->{$path}->{trafico};
 			push @aaData, \%entry;
 		}
 	}
-	my %data = ( aaData => \@aaData );
-	$self->writer->write( \%data, $output_dir . 'datatables/',
-		$self->get_file_name );
-	
-	$self->write_top(\%data, $output_dir);
+	return @aaData;
 }
 
 sub new_entry {
@@ -68,7 +59,7 @@ sub get_fields {
 }
 
 sub get_sort_field {
-	my ( $self ) = @_;
+	my ($self) = @_;
 	return 'trafico';
 }
 1;
