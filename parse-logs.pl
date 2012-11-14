@@ -1,6 +1,11 @@
 use warnings;
 use strict;
 use Benchmark;
+use lib 'report-generator';
+use lib 'common';
+use lib 'configuration';
+use lib 'writer';
+use lib 'parser';
 require 'Configuration.pm';
 require 'Utils.pm';
 require 'Parser.pm';

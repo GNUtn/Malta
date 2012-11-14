@@ -15,6 +15,7 @@ sub parse_values {
 		$entry->{last_occurrence} = $request_date;
 	}
 }
+
 sub post_process {
 	my ($self) = @_;
 	foreach my $host ( keys %{ $self->data_hash } ) {
