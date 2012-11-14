@@ -41,4 +41,9 @@ sub get_fields {
 	my ($self) = @_;
 	return [qw(usuario)];
 }
+
+sub get_sort_field {
+	my ( $self ) = @_;
+	return 'trafico';
+}
 1;

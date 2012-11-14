@@ -18,6 +18,31 @@ sub get_file_name {
 	return "pagina_usuario.json";
 }
 
+sub write_report {
+	my ( $self, $output_dir ) = @_;
+
+	$self->writer->write( $self->data_hash, $output_dir . 'internal/',
+		$self->get_file_name );
+
+	my @aaData = ();
+	foreach my $usuario ( keys %{ $self->data_hash } ) {
+		foreach my $pagina ( keys %{ $self->data_hash->{$usuario} } ) {
+			my %entry;
+			$entry{usuario} = $usuario;
+			$entry{pagina}  = $pagina;
+			$entry{ocurrencias} =
+			  $self->data_hash->{$usuario}->{$pagina}->{ocurrencias};
+			$entry{trafico} = $self->data_hash->{$usuario}->{$pagina}->{trafico};
+			push @aaData, \%entry;
+		}
+	}
+	my %data = ( aaData => \@aaData );
+	$self->writer->write( \%data, $output_dir . 'datatables/',
+		$self->get_file_name );
+	
+	$self->write_top(\%data, $output_dir);
+}
+
 sub get_entry {
 	my ( $self, $usuario, $pagina ) = @_;
 
@@ -45,5 +70,10 @@ sub get_level {
 sub get_fields {
 	my ($self) = @_;
 	return [qw(usuario pagina)];
+}
+
+sub get_sort_field {
+	my ( $self ) = @_;
+	return 'trafico';
 }
 1;

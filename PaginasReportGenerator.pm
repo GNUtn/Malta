@@ -66,4 +66,9 @@ sub get_fields {
 	my ($self) = @_;
 	return [qw(destino pagina)];
 }
+
+sub get_sort_field {
+	my ( $self ) = @_;
+	return 'trafico';
+}
 1;

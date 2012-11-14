@@ -53,7 +53,9 @@ sub write_top {
 	my ($self, $data, $output_dir) = @_;
 	my $aaData = $data->{aaData};
 	if ((scalar @$aaData) > $self->config->top_limit) {
-		my @new = @$aaData[0 .. $self->config->top_limit];
+		my $sort_field = $self->get_sort_field;
+		my @new = sort { $b->{$sort_field} <=> $a->{$sort_field} } @$aaData;
+		@new = @new[0 .. $self->config->top_limit];
 		$data->{aaData} = \@new;
 	}
 	$self->writer->write( $data, $output_dir . 'datatables/top/',
