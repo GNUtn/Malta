@@ -25,7 +25,7 @@ sub parse_values {
 			$query = $uri->query_param('p');
 		}
 		if ( $query && length($query ) > $self->config->search_length ) {
-			my $entry = $self->get_entry( $query );
+			my $entry = $self->get_entry( lc $query );
 			$entry->{ocurrencias} += 1;
 		}
 	}
