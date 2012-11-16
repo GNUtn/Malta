@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<counter name="">
+	<field_index>
+	</field_index>
+	<preprocess><!-- one or more preprocess -->
+	</preprocess>
+	<exclude><!-- one or more exclude -->
+		<field></field>
+		<condition></condition>
+	</exclude>
+	<summarizer><!-- one or more summarizer -->
+		<field></field>
+		<condition></condition>
+	</summarizer>
+	<other_counters><!-- one or more other_counters -->
+		<field></field>
+		<condition></condition>
+	</other_counters>
+</counter>
