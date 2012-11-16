@@ -4,7 +4,7 @@
 
 package Log;
 use Mouse;
-
+use diagnostics;
 #use MooseX::Types::DateTime ;
 use DateTime;
 use DateTime::Format::Strptime;
@@ -13,9 +13,13 @@ use List::MoreUtils qw(firstidx);
 use Clone;
 use POSIX qw/strftime/;
 use XML::Writer;
+use XML::Simple;
+
 use IO::File;
-use threads;
+use threads; 
 use Storable;
+
+require 'Counter.pm';
 
 # rw properties
 has 'log_file' => (
@@ -89,10 +93,11 @@ has '_filters' => (
 	default => sub { my %hash; return \%hash; }
 );
 
-has '_counters_distincts_indexes' => (
-	is      => 'ro',
-	isa     => 'HashRef',
-	default => sub { my %hash; return \%hash; }
+has '_counters' => (
+	is  => 'rw',
+	isa => 'ArrayRef',
+	default => sub { my @array; return \@array; },
+	writer	=> '_set_counters'
 );
 
 around BUILDARGS => sub {
@@ -128,26 +133,37 @@ sub _load_filters {
 	}
 }
 
-sub _load_counters_distinct {
+sub _create_counters {    #TODO: Singleton
 	my $self = shift;
 
-	open( my $file, "countersDistinct.txt" ) || die("Unable to open filters file \"countersDistinct.txt\".");
-	while ( my $line = <$file> ) {
-		next if ( $line =~ /^#/i );                          	#TODO: set comment char in configuration
-		chomp($line);											#TODO: paste counterdistinct to object
-		my @array = split( $self->separator, $line );
-		my $h     = $self->_counters_distincts_indexes();
-		my $index = firstidx { $_ eq $array[1] } @{ $self->structure };
-		my $indexExclude;
-		my $indexSumarize; 
-		if ($array[3]){
-			$indexExclude = firstidx { $_ eq $array[3] } @{ $self->structure };
+	my $xml = XMLin('counters.xml', ForceArray => ['exclude', 'preprocess', 'summarizer', 'counter']);
+	my @array = ();
+	$self->_set_counters(\@array);
+	foreach my $key (keys %{$xml->{counter}}){
+		my @preprocess = ();
+		my %exclude;
+		my @summarizers = ();
+		my %other_counters;
+		foreach my $string_preprocess (@{$xml->{counter}->{$key}->{preprocess}}){
+			push(@preprocess, $string_preprocess); 
 		}
-		if ($array[5]){
-			$indexSumarize = firstidx { $_ eq $array[5] } @{ $self->structure };
+		foreach my $item_exclude (@{$xml->{counter}->{$key}->{exclude}}){
+			$exclude{$item_exclude->{field}} = $item_exclude->{condition}; 
 		}
-		#campos del array: indice del campo a buscar, preprosesar, indice del campo a excluir, regex de exclusion, indice del campo a sumarizar
-		$h->{ $array[0] } = [ $index, $array[2], $indexExclude, $array[4], $indexSumarize ];
+		foreach my $summarizer (@{$xml->{counter}->{$key}->{summarizer}}){
+			my %hash = ($summarizer->{summarizer_name} => $summarizer->{field});
+			push(@summarizers, \%hash); 
+		}
+		foreach my $item_other_counters (@{$xml->{counter}->{$key}->{exclude}}){
+			$other_counters{$item_other_counters->{field}} = $item_other_counters->{condition}; 
+		}
+		push(@{$self->_counters}, Counter->new($key,
+			$xml->{counter}->{$key}->{field_index},
+			\@preprocess,
+			\%exclude,
+			\@summarizers,
+			\%other_counters
+		));
 	}
 }
 
@@ -173,7 +189,7 @@ sub open_log {
 	my $self = shift;
 
 	$self->_load_filters();
-	$self->_load_counters_distinct();
+	#$self->_load_counters_distinct();
 
 	#TODO: prepare for zip files
 	#open(FILE, "$GZIP $filezip |") || &error_exit("Error, unable to open $filezip: $!",0);
@@ -186,7 +202,7 @@ sub process {
 	my $self = shift;
 
 	my $file         = $self->_log_filehandle;
-	my @line_splited = ();
+	my @line_splited = [];
 	my $line_readed  = "";
 
 	my $date_index = firstidx { $_ eq 'date' } @{ $self->structure };
@@ -213,9 +229,7 @@ sub process {
 		time_zone => 'GMT'                                          #TODO: paste to config
 	);
 	my $date_time;
-	my $counter_distinct_minute = $self->_create_hash_counter_distinct();
-	my $counter_distinct_hour   = $self->_create_hash_counter_distinct();
-	my $counter_distinct_totals = $self->_create_hash_counter_distinct();
+	$self->_create_counters();
 
 	while (<$file>) { last if ( $. == $self->skip_lines ) }         #skip lines
 	while ( $line_readed = <$file> ) {
@@ -234,183 +248,73 @@ sub process {
 			$last_date_time = $date_time;                           #TODO: cambiar para leer archivo de estado, poner antes del while
 			$minute_count   = 1;
 			$hour_count     = 1;
-			%{$counter_distinct_totals} = ();
-			$self->_update_counters_distincts( \@line_splited, $counter_distinct_totals );
 		}
-		
-		#$self->_preprocess_line(\@line_splited);
 		#process minute
 		if ( $self->granularity eq 'minute' ) {
 			if ( $date_time->minute() != $last_date_time->minute() || $date_time->hour() != $last_date_time->hour() )
 			{                                                       #TODO: add day, month and year
-				threads->new( \&save_xmlT, $self, $minute_count, "/var/www/MaltaWeb/data/minute_" . $last_date_time->strftime( "%Y%m%d%H%M" . ".xml" ),
-					$counter_distinct_minute, 'minute' );
+				threads->new( \&save_xmlT, $self, $minute_count,
+					"/var/www/MaltaWeb/data/minute_" . $last_date_time->strftime( "%Y%m%d%H%M" . ".xml" ),
+					'minute' );
 				$minute_count = 1;
 				$date_changed = 1;
-				%{$counter_distinct_minute} = ();
+				$self->_create_counters();
 			} else {
 				++$minute_count;
 			}
-			$self->_update_counters_distincts( \@line_splited, $counter_distinct_minute );
-		}
-
-		#process hour
-		if ( $self->granularity eq 'minute' || $self->granularity eq 'hour' ) {
-			if ( $date_time->hour() != $last_date_time->hour() ) {
-
-				#				threads->new(\&merge_xmlT, 'hour', $last_date_time->strftime("%Y%m%d%H"));
-				threads->new( \&save_xmlT, $self, $hour_count, "/var/www/MaltaWeb/data/hour_" . $last_date_time->strftime( "%Y%m%d%H" . ".xml" ),
-					$counter_distinct_hour, 'hour' );
-				$hour_count   = 1;
-				$date_changed = 1;
-				%{$counter_distinct_hour} = ();
-			} else {				
-				++$hour_count;
+			foreach my $counter (@{$self->_counters}){
+				$counter->count(\@line_splited);
 			}
-			$self->_update_counters_distincts( \@line_splited, $counter_distinct_hour );
 		}
-		#process totals
-		$self->_update_counters_distincts(\@line_splited, $counter_distinct_totals);
 		if ($date_changed) {
 			$date_changed   = 0;
 			$last_date_time = $date_time;
 		}
 	}
 	if ( $self->granularity eq 'minute' ) {
-		threads->new( \&save_xmlT, $self, $minute_count, "/var/www/MaltaWeb/data/minute_" . $last_date_time->strftime( "%Y%m%d%H%M" . ".xml" ),
-			$counter_distinct_minute, 'minute' );
+		threads->new( \&save_xmlT, $self, $minute_count,
+			"/var/www/MaltaWeb/data/minute_" . $last_date_time->strftime( "%Y%m%d%H%M" . ".xml" ),
+			'minute' );
 	}
-
-	if ($self->granularity eq 'minute' || $self->granularity eq 'hour'){
-		threads->new(\&save_xmlT, $self, $hour_count , "/var/www/MaltaWeb/data/hour_" . $last_date_time->strftime("%Y%m%d%H" . ".xml") , $counter_distinct_hour, 'hour');
-	}
-	threads->new(\&save_xmlT, $self, $self->lines_processed() , "/var/www/MaltaWeb/data/totals.xml" , $counter_distinct_totals, 'totals');
 	foreach my $thr ( threads->list() ) {
 		$thr->join();
 	}
 }
 
-sub _preprocess_field{
-	my $self = shift;
-	my $value = shift;
-	my $key = shift;
-	
-	if (${ $self->_counters_distincts_indexes() }{$key}[1]){
-		foreach my $regex (split(' ', ${ $self->_counters_distincts_indexes() }{$key}[1])){
-			my $code ="";
-			$code = '$value =~ ' . $regex . ';';
-			eval ($code);	
-		}
-		
-	}
-	return $value;
-}
-
-sub _update_counters_distincts {
+sub save_xmlT {
 	my $self = shift;
 
-	my @line_splited     = @{ $_[0] };
-	my $counter_distinct = $_[1];
-	my $value_exclude = "";
-	my $value_field = "";
-	foreach my $counter_key ( keys %{ $self->_counters_distincts_indexes() } ) {
-		$value_field = $self->_preprocess_field($line_splited[ ${ $self->_counters_distincts_indexes() }{$counter_key}[0] ], $counter_key);
-		if ( ${ $self->_counters_distincts_indexes() }{$counter_key}[2] && ${ $self->_counters_distincts_indexes() }{$counter_key}[3] ){# if ExcludeByField	is applied
-			$value_exclude = $self->_preprocess_field($line_splited[ ${ $self->_counters_distincts_indexes() }{$counter_key}[2] ], $counter_key);
-			if(!($value_exclude =~ m/${ $self->_counters_distincts_indexes() }{$counter_key}[3]/i)){
-				$counter_distinct->{$counter_key}->{ $value_field }[0][0] += 1; #add to counter
-				if (${ $self->_counters_distincts_indexes() }{$counter_key}[4]){ #if summarize
-					$counter_distinct->{$counter_key}->{ $value_field }[1][0] += $line_splited[ ${ $self->_counters_distincts_indexes() }{$counter_key}[4] ]; #add to summarizer
-				}
-			}
-		}else{
-			$counter_distinct->{$counter_key}->{ $value_field }[0][0] += 1;
-			if (${ $self->_counters_distincts_indexes() }{$counter_key}[4]){ #if summarize
-				$counter_distinct->{$counter_key}->{ $value_field }[1][0] += $line_splited[ ${ $self->_counters_distincts_indexes() }{$counter_key}[4] ]; #add to summarizer
-			}
-		}
-	}
-}
-
-sub _create_hash_counter_distinct {    #TODO: Singleton
-	my $self = shift;
-
-	my %hash;
-	foreach my $key ( keys %{ $self->_counters_distincts_indexes() } ) {
-		$hash{$key} = {};
-	}
-	return \%hash;
-}
-
-sub merge_xmlT {
-	my $type = $_[0];
-	my $hour = $_[1];
-
-	my @files     = [];
-	my $count_str = "";
-	my $input_file;
-	my $file;
-
-	open my $file_merge, "/var/www/MaltaWeb/data/hour_" . $hour . ".xml";
-	if ( $type eq 'hour' ) {
-		my $count;
-		for $count ( 0 .. 59 ) {
-			$count_str  = "" . $count;
-			$input_file = "/var/www/MaltaWeb/data/minute_" . $hour . "$count_str.xml";
-			$count_str  = "0" . $count if ( $count < 10 );
-			if ( -e $input_file ) {
-				open $files[$count], "<$input_file" or die $!;
-			} else {
-				last;
-			}
-		}
-		my @datos = [];
-		while (1) {
-			$count = 0;
-			foreach $file (@files) {
-				$datos[$count] = <$file>;
-			}
-		}
-		foreach $file (@files) {
-			close $file;
-		}
-	}
-
-}
-
-sub save_xmlT {    
-	my $self = shift;
-	
 	my $lines_count          = $_[0];
 	my $filename             = $_[1];
-	my $ref_counter_distinct = $_[2];
-	my $start_tag_name       = $_[3];
+	my $start_tag_name       = $_[2];
 	my $doc                  = new IO::File( ">" . $filename );
-	my $xml = XML::Writer->new( OUTPUT => $doc, DATA_MODE => 1 );    # || die ("\nUnable to create hours file ($file_name) in data directory.")
+	my $xml = XML::Writer->new( OUTPUT => $doc);    # || die ("\nUnable to create hours file ($file_name) in data directory.")
 
 	$xml->xmlDecl('UTF-8');
 	$xml->startTag('root');
 	$xml->startTag('lines_count');
 	$xml->characters($lines_count);
 	$xml->endTag();
-	foreach my $key1 ( sort keys %{$ref_counter_distinct} ) {
-		$xml->startTag( $key1 . 's' );
-		$xml->startTag( $key1 . 's_distincts' );
-		$xml->characters( scalar( keys %{ $ref_counter_distinct->{$key1} } ) );
+	foreach my $counter (@{$self->_counters} ) {
+		$xml->startTag( $counter->name() . 's' );
+		$xml->startTag( $counter->name() . 's_distincts' );
+		$xml->characters( length(keys %{$counter->counters()}) );
 		$xml->endTag();
 		my $hits_count = 0;
-		foreach my $key2 ( sort keys %{ $ref_counter_distinct->{$key1} } ) {
-			my $hits = $ref_counter_distinct->{$key1}->{$key2}[0][0];
-			if (${ $self->_counters_distincts_indexes() }{$key1}[4]){ #if summarize
-				my $sum = $ref_counter_distinct->{$key1}->{$key2}[1][0];
-				$xml->startTag( $key1, 'name' => $key2, 'hits' => $hits, 'sum' => $sum);
-			}else{
-				$xml->startTag( $key1, 'name' => $key2, 'hits' => $hits);
+		foreach my $key_counters ( keys %{$counter->counters()} ) {
+			$xml->startTag(
+				$counter->name(), 
+				'name' => $key_counters, 
+				'hits' => $counter->counters()->{$key_counters}
+			);
+			foreach my $key_summarizers (%{$counter->summarizers_sums->{$key_counters}}){
+#				$xml->startTag($key_summarizers );
+#				$xml->endTag();
 			}
-			$hits_count += $hits;
+			$hits_count += $counter->counters()->{$key_counters};
 			$xml->endTag();
 		}
-		$xml->startTag( $key1 . 's_hits' );
+		$xml->startTag( $counter->name() . 's_hits' );
 		$xml->characters($hits_count);
 		$xml->endTag();
 		$xml->endTag();

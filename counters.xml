@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+<counter>
+	<name>Usuario</name>
+	<field_index>1</field_index>
+	<preprocess>tr/[A-Z]/[a-z]/</preprocess>
+	<summarizer>
+		<field>14</field>
+		<summarizer_name>Transito</summarizer_name>
+	</summarizer>
+</counter>
+</root>
