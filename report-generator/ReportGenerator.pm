@@ -34,39 +34,15 @@ around BUILDARGS => sub {
 
 sub write_report {
 	my ( $self, $output_dir ) = @_;
-	print "Writing resutls for file: ", $self->get_file_name, "...\n";
 	
-	$self->writer->write( $self->data_hash, $output_dir . 'internal/',
-		$self->get_file_name );
-
-	my @aaData = $self->flatten_data();
-
-	my %data = ( aaData => \@aaData );
-	$self->writer->write( \%data, $output_dir . 'datatables/',
-		$self->get_file_name );
-
-	$self->write_top( \%data, $output_dir );
+	$self->writer->write_report($self->data_hash, $self, $output_dir, $self->get_file_name);
 
 }
 
-sub flatten_data {
-	my ($self) = @_;
-	return DataHashFlatten->flatten( $self->get_level(), $self->data_hash,
+sub get_flatten_data {
+	my ($self, $key) = @_;
+	return DataHashFlatten->flatten( $self->get_level(), $self->data_hash->{$key},
 		$self->get_fields() );
-}
-
-sub write_top {
-	my ( $self, $data, $output_dir ) = @_;
-	my $aaData = $data->{aaData};
-	if ( ( scalar @$aaData ) > $self->config->top_limit ) {
-		my $sort_field = $self->get_sort_field;
-		my @new = sort { $b->{$sort_field} <=> $a->{$sort_field} } @$aaData;
-		@new = @new[ 0 .. $self->config->top_limit ];
-		$data->{aaData} = \@new;
-	}
-	$self->writer->write( $data, $output_dir . 'datatables/top/',
-		$self->get_file_name );
-
 }
 
 sub parse_values {

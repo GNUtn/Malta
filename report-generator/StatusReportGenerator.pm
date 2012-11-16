@@ -7,7 +7,8 @@ require 'Utils.pm';
 sub parse_values {
 	my ( $self, $values ) = @_;
 	my $status = @$values[ $self->config->{fields}->{'sc-status'} ];
-	my $entry = $self->get_entry( $self->get_category($status), $status );
+	my $date  = @$values[ $self->config->{fields}->{'date'} ];
+	my $entry = $self->get_entry( $date, $self->get_category($status), $status );
 	$entry->{ocurrencias} += 1;
 }
 
@@ -16,13 +17,33 @@ sub get_file_name {
 }
 
 sub get_entry {
-	my ( $self, $categoria, $status ) = @_;
+	my ( $self, $date, $categoria, $status ) = @_;
 
-	if ( !exists $self->data_hash->{$categoria}->{$status} ) {
-		$self->data_hash->{$categoria}->{$status} = $self->new_entry($status);
+	if ( !exists $self->data_hash->{$date}->{$categoria}->{$status} ) {
+		$self->data_hash->{$date}->{$categoria}->{$status} = $self->new_entry($status);
 	}
 
-	return $self->data_hash->{$categoria}->{$status};
+	return $self->data_hash->{$date}->{$categoria}->{$status};
+}
+
+sub get_global_results {
+	my ($self) = @_;
+	foreach my $date ( keys %{ $self->data_hash } ) {
+		foreach my $categoria ( keys %{ $self->data_hash->{$date} } ) {
+			foreach my $status (keys %{$self->data_hash->{$date}->{$categoria}}){
+				if ( exists $self->data_hash->{$categoria}->{$status} ) {
+					$self->data_hash->{$categoria}->{$status}->{ocurrencias} +=
+					  $self->data_hash->{$date}->{$categoria}->{ocurrencias};
+				} else {
+					$self->data_hash->{$categoria}->{$status} = $self->data_hash->{$date}->{$categoria}->{$status};
+				}
+				delete($self->data_hash->{$date}->{$categoria}->{$status});
+			}
+			delete($self->data_hash->{$date}->{$categoria});
+		}
+		delete($self->data_hash->{$date});
+	}
+	return $self->data_hash;
 }
 
 sub new_entry {
@@ -61,6 +82,11 @@ sub get_level {
 sub get_fields {
 	my ($self) = @_;
 	return [qw(categoria status)];
+}
+
+sub get_sort_field {
+	my ( $self ) = @_;
+	return 'ocurrencias';
 }
 
 has 'details' => (

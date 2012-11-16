@@ -23,7 +23,7 @@ require 'ReportWriter.pm';
 
 my $t0 = Benchmark->new;
 my $conf = new Configuration();
-my $writer = new ReportWriter();
+my $writer = new ReportWriter($conf);
 my @parsers = ();
 push (@parsers, new GlobalStatsReportGenerator($conf, $writer));
 push (@parsers, new HostsReportGenerator($conf, $writer));
@@ -41,4 +41,4 @@ $parser->parse_files(\@files);
 my $tf = Benchmark->new;
 my $td = timediff($tf, $t0);
 print "Done.\n";
-print "Time elapsed: ", timestr($td),"\n";
+print "Time elapsed: ", timestr($td), "\n";

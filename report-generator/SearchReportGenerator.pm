@@ -25,13 +25,11 @@ sub parse_values {
 			$query = $uri->query_param('p');
 		}
 		if ( $query && length($query ) > $self->config->search_length ) {
-			my $entry = $self->get_entry( $query );
+			my $date  = @$values[ $self->config->{fields}->{'date'} ];
+			my $entry = $self->get_entry( $date, $query );
 			$entry->{ocurrencias} += 1;
 		}
 	}
-}
-
-sub update_totals {
 }
 
 sub get_file_name {
@@ -39,13 +37,30 @@ sub get_file_name {
 }
 
 sub get_entry {
-	my ( $self, $query ) = @_;
+	my ( $self, $date, $query ) = @_;
 
-	if ( !exists $self->data_hash->{$query} ) {
-		$self->data_hash->{$query} = $self->new_entry;
+	if ( !exists $self->data_hash->{$date}->{$query} ) {
+		$self->data_hash->{$date}->{$query} = $self->new_entry;
 	}
 
-	return $self->data_hash->{$query};
+	return $self->data_hash->{$date}->{$query};
+}
+
+sub get_global_results {
+	my ($self) = @_;
+	foreach my $date ( keys %{ $self->data_hash } ) {
+		foreach my $query ( keys %{ $self->data_hash->{$date} } ) {
+			if ( exists $self->data_hash->{$query} ) {
+				$self->data_hash->{$query}->{ocurrencias} +=
+				  $self->data_hash->{$date}->{$query}->{ocurrencias};
+			} else {
+				$self->data_hash->{$query} = $self->data_hash->{$date}->{$query};
+			}
+			delete($self->data_hash->{$date}->{$query});
+		}
+		delete($self->data_hash->{$date});
+	}
+	return $self->data_hash;
 }
 
 sub new_entry {

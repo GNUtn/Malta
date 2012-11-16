@@ -2,26 +2,29 @@ package GlobalStatsReportGenerator;
 use Mouse;
 extends 'ReportGenerator';
 
-sub BUILD {
-	my $self = shift;
-	$self->data_hash->{peticiones} = 0;
-	$self->data_hash->{trafico}    = 0;
-}
-
 sub parse_values {
 	my ( $self, $values ) = @_;
-	$self->data_hash->{peticiones} += 1;
-	$self->data_hash->{trafico}    += $self->get_trafico($values);
+	my $date  = @$values[ $self->config->{fields}->{'date'} ];
+	my $entry = $self->get_entry($date);
+	$entry->{peticiones} += 1;
+	$entry->{trafico} += $self->get_trafico($values);
 }
 
-sub write_report {
-	my ( $self, $output_dir ) = @_;
-	$self->writer->write( $self->data_hash, $output_dir . 'internal/',
-		$self->get_file_name );
-	my @aaData = ( $self->data_hash );
-	my %datatablesData = ( aaData => \@aaData );
-	$self->writer->write( \%datatablesData, $output_dir . 'datatables/',
-		$self->get_file_name );
+sub get_global_results {
+	my ($self) = @_;
+	$self->data_hash->{peticiones}  = 0;
+	$self->data_hash->{trafico}  = 0;
+	foreach my $date (keys %{$self->data_hash}) {
+		$self->data_hash->{peticiones} += $self->data_hash->{$date}->{peticiones};
+		$self->data_hash->{trafico} += $self->data_hash->{$date}->{trafico};
+	}
+	return $self->data_hash;
+}
+
+sub get_flatten_data {
+	my ($self, $key) = @_;
+	my @aaData = ( $self->data_hash->{$key} );
+	return @aaData;
 }
 
 sub get_file_name {
@@ -29,7 +32,23 @@ sub get_file_name {
 }
 
 sub get_sort_field {
-	my ( $self ) = @_;
+	my ($self) = @_;
 	return 'peticiones';
+}
+
+sub get_entry {
+	my ( $self, $date ) = @_;
+
+	if ( !exists $self->data_hash->{$date} ) {
+		$self->data_hash->{$date} = $self->new_entry;
+	}
+
+	return $self->data_hash->{$date};
+}
+
+sub new_entry {
+	my ($self) = @_;
+	my %entry = ( peticiones => 0, trafico => 0 );
+	return \%entry;
 }
 1;

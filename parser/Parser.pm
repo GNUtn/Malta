@@ -26,6 +26,9 @@ around BUILDARGS => sub {
 
 sub parse_files {
 	my ( $self, $file_paths ) = @_;
+	my $size = scalar(keys %{$self->config->{fields}});
+	$self->config->{fields}->{'parsed-date'} = $size;
+	
 
 	foreach my $file_path ( @{$file_paths} ) {
 		$self->parse_file($file_path);
@@ -48,7 +51,7 @@ sub parse_file {
 		next if $self->is_excluded_line($line) || !$self->is_valid_line($line);
 
 		my @values = split( $self->config->field_sep, $line );
-
+		
 		$self->pre_process_values( \@values );
 
 		foreach my $report_generator ( @{ $self->report_generators } ) {
@@ -73,6 +76,6 @@ sub is_valid_line {
 
 sub pre_process_values {
 	my ( $self, $values ) = @_;
-	@$values[ $self->config->{fields}->{'date'} ] = Date->new(@$values[ $self->config->{fields}->{'date'} ]);
+	@$values[ $self->config->{fields}->{'parsed-date'} ] = Date->new(@$values[ $self->config->{fields}->{'date'} ]);
 }
 1;
