@@ -27,4 +27,9 @@ sub write_report {
 sub get_file_name {
 	return "global.json";
 }
+
+sub get_sort_field {
+	my ( $self ) = @_;
+	return 'peticiones';
+}
 1;

@@ -29,9 +29,7 @@ sub get_entry {
 
 sub new_entry {
 	my ($self) = @_;
-	my %entry = (
-		ocurrencias => 0,
-	);
+	my %entry = ( ocurrencias => 0, );
 	return \%entry;
 }
 
@@ -43,5 +41,10 @@ sub get_level {
 sub get_fields {
 	my ($self) = @_;
 	return [qw(categoria)];
+}
+
+sub get_sort_field {
+	my ( $self ) = @_;
+	return 'ocurrencias';
 }
 1;

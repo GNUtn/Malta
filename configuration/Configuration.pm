@@ -93,4 +93,16 @@ has 'valid_line_pattern' => (
 	isa     => 'Str',
 	default => '([^\t]+\t*)+'
 );
+
+has 'search_length' => (
+	is      => 'rw',
+	isa     => 'Int',
+	default => '3'
+);
+
+has 'top_limit' => (
+	is      => 'rw',
+	isa     => 'Int',
+	default => '10000'
+);
 1;

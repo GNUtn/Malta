@@ -9,11 +9,14 @@ sub parse_values {
 	
 	if ($action eq 'Denied') {
 		my $category = @$values[ $self->config->{fields}->{'UrlCategory'} ];
-		my $url   = @$values[ $self->config->{fields}->{'cs-uri'} ];
+		my $url   = @$values[ $self->config->{fields}->{'cs-referred'} ];
 		my $uri   = $self->parse_url($url);
-		my $user = @$values[ $self->config->{fields}->{'cs-username'} ];
-		my $entry = $self->get_entry( $category, $user, "http://".$uri->host.$uri->path );
-		$entry->{ocurrencias} += 1;
+		eval {$uri->host; $uri->path};
+        if (!$@) {
+			my $user = @$values[ $self->config->{fields}->{'cs-username'} ];
+			my $entry = $self->get_entry( $category, $user, "http://".$uri->host.$uri->path );
+			$entry->{ocurrencias} += 1;
+        }
 	}
 }
 
@@ -47,5 +50,10 @@ sub get_level {
 sub get_fields {
 	my ($self) = @_;
 	return [qw(categoria usuario pagina)];
+}
+
+sub get_sort_field {
+	my ( $self ) = @_;
+	return 'ocurrencias';
 }
 1;

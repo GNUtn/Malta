@@ -26,9 +26,25 @@ sub get_entry {
 	return $self->data_hash->{$destino}->{$pagina};
 }
 
+sub flatten_data {
+	my ($self) = @_;
+	my @aaData = ();
+	foreach my $destino ( keys %{ $self->data_hash } ) {
+		foreach my $path ( keys %{ $self->data_hash->{$destino} } ) {
+			my %entry;
+			$entry{destino} = $destino;
+			$entry{pagina}  = $path;
+			$entry{ocurrencias} = $self->data_hash->{$destino}->{$path}->{ocurrencias};
+			$entry{trafico} = $self->data_hash->{$destino}->{$path}->{trafico};
+			push @aaData, \%entry;
+		}
+	}
+	return @aaData;
+}
+
 sub new_entry {
 	my ($self) = @_;
-	my %entry = ( ocurrencias => 0, trafico => 0);
+	my %entry = ( ocurrencias => 0, trafico => 0 );
 	return \%entry;
 }
 
@@ -40,5 +56,10 @@ sub get_level {
 sub get_fields {
 	my ($self) = @_;
 	return [qw(destino pagina)];
+}
+
+sub get_sort_field {
+	my ($self) = @_;
+	return 'trafico';
 }
 1;
