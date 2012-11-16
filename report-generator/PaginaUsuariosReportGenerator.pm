@@ -7,12 +7,15 @@ sub parse_values {
 	my ( $self, $values ) = @_;
 
 	my $date  = @$values[ $self->config->{fields}->{'date'} ];
-	my $url   = @$values[ $self->config->{fields}->{'cs-uri'} ];
+	my $url   = @$values[ $self->config->{fields}->{'cs-referred'} ];
 	my $uri   = $self->parse_url($url);
-	my $user  = @$values[ $self->config->{fields}->{'cs-username'} ];
-	my $entry = $self->get_entry( $date, $user, "http://" . $uri->host . $uri->path );
-	$entry->{ocurrencias} += 1;
-	$entry->{trafico} += $self->get_trafico($values);
+	eval {$uri->host; $uri->path};
+	if (!$@) {
+		my $user  = @$values[ $self->config->{fields}->{'cs-username'} ];
+		my $entry = $self->get_entry( $date, $user, "http://" . $uri->host . $uri->path );
+		$entry->{ocurrencias} += 1;
+		$entry->{trafico} += $self->get_trafico($values);
+	}
 }
 
 sub get_file_name {
@@ -52,13 +55,11 @@ sub get_global_results {
 			foreach my $pagina (keys %{$self->data_hash->{$date}->{$usuario}}){
 				if ( exists $self->data_hash->{$usuario}->{$pagina} ) {
 					$self->data_hash->{$usuario}->{$pagina}->{ocurrencias} +=
-					  $self->data_hash->{$date}->{$usuario}->{ocurrencias};
+					  $self->data_hash->{$date}->{$usuario}->{$pagina}->{ocurrencias};
 				} else {
 					$self->data_hash->{$usuario}->{$pagina} = $self->data_hash->{$date}->{$usuario}->{$pagina};
 				}
-				delete($self->data_hash->{$date}->{$usuario}->{$pagina});
 			}
-			delete($self->data_hash->{$date}->{$usuario});
 		}
 		delete($self->data_hash->{$date});
 	}

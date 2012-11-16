@@ -15,8 +15,11 @@ sub get_global_results {
 	$self->data_hash->{peticiones}  = 0;
 	$self->data_hash->{trafico}  = 0;
 	foreach my $date (keys %{$self->data_hash}) {
-		$self->data_hash->{peticiones} += $self->data_hash->{$date}->{peticiones};
-		$self->data_hash->{trafico} += $self->data_hash->{$date}->{trafico};
+		if ($date ne 'peticiones' && $date ne 'trafico') {
+			$self->data_hash->{peticiones} += $self->data_hash->{$date}->{peticiones};
+			$self->data_hash->{trafico} += $self->data_hash->{$date}->{trafico};
+			delete $self->data_hash->{$date};
+		}
 	}
 	return $self->data_hash;
 }

@@ -33,7 +33,7 @@ sub get_global_results {
 			foreach my $status (keys %{$self->data_hash->{$date}->{$categoria}}){
 				if ( exists $self->data_hash->{$categoria}->{$status} ) {
 					$self->data_hash->{$categoria}->{$status}->{ocurrencias} +=
-					  $self->data_hash->{$date}->{$categoria}->{ocurrencias};
+					  $self->data_hash->{$date}->{$categoria}->{$status}->{ocurrencias};
 				} else {
 					$self->data_hash->{$categoria}->{$status} = $self->data_hash->{$date}->{$categoria}->{$status};
 				}

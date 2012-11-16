@@ -50,15 +50,13 @@ sub get_global_results {
 			foreach my $pagina (keys %{$self->data_hash->{$date}->{$destino}}){
 				if ( exists $self->data_hash->{$destino}->{$pagina} ) {
 					$self->data_hash->{$destino}->{$pagina}->{ocurrencias} +=
-					  $self->data_hash->{$date}->{$destino}->{ocurrencias};
+					  $self->data_hash->{$date}->{$destino}->{$pagina}->{ocurrencias};
 					 $self->data_hash->{$destino}->{$pagina}->{trafico} +=
-					  $self->data_hash->{$date}->{$destino}->{trafico};
+					  $self->data_hash->{$date}->{$destino}->{$pagina}->{trafico};
 				} else {
 					$self->data_hash->{$destino}->{$pagina} = $self->data_hash->{$date}->{$destino}->{$pagina};
 				}
-				delete($self->data_hash->{$date}->{$destino}->{$pagina});
 			}
-			delete($self->data_hash->{$date}->{$destino});
 		}
 		delete($self->data_hash->{$date});
 	}

@@ -26,7 +26,7 @@ sub parse_values {
 		}
 		if ( $query && length($query ) > $self->config->search_length ) {
 			my $date  = @$values[ $self->config->{fields}->{'date'} ];
-			my $entry = $self->get_entry( $date, $query );
+			my $entry = $self->get_entry( $date, lc $query );
 			$entry->{ocurrencias} += 1;
 		}
 	}
