@@ -71,6 +71,15 @@ sub parse_url {
 	return URI->new($url);
 }
 
+sub get_url {
+	my ($self, $values) = @_;
+	my $url   = @$values[ $self->config->{fields}->{'cs-referred'} ];
+	if ($url eq '-') {
+		$url   = @$values[ $self->config->{fields}->{'cs-uri'} ];
+	}
+	return $url;
+}
+
 sub get_trafico {
 	my ( $self, $values ) = @_;
 	return ( @$values[ $self->config->{fields}->{'cs-bytes'} ] +

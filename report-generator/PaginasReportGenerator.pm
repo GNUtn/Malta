@@ -6,9 +6,8 @@ require 'Utils.pm';
 sub parse_values {
 	my ( $self, $values ) = @_;
 	my $date  = @$values[ $self->config->{fields}->{'date'} ];
-	my $url   = @$values[ $self->config->{fields}->{'cs-referred'} ];
-	my $uri   = $self->parse_url($url);
-	my $entry = $self->get_entry( $date, $uri->host, $uri->path );
+	my $uri   = $self->parse_url($self->get_url($values));
+	my $entry = $self->get_entry( $date, $uri->host );
 	$entry->{ocurrencias} += 1;
 	$entry->{trafico} += $self->get_trafico($values);
 }
@@ -18,27 +17,24 @@ sub get_file_name {
 }
 
 sub get_entry {
-	my ( $self, $date, $destino, $pagina ) = @_;
+	my ( $self, $date, $destino ) = @_;
 
-	if ( !exists $self->data_hash->{$date}->{$destino}->{$pagina} ) {
-		$self->data_hash->{$date}->{$destino}->{$pagina} = $self->new_entry;
+	if ( !exists $self->data_hash->{$date}->{$destino} ) {
+		$self->data_hash->{$date}->{$destino} = $self->new_entry;
 	}
 
-	return $self->data_hash->{$date}->{$destino}->{$pagina};
+	return $self->data_hash->{$date}->{$destino};
 }
 
 sub get_flatten_data {
 	my ($self, $key) = @_;
 	my @aaData = ();
 	foreach my $destino ( keys %{ $self->data_hash->{$key} } ) {
-		foreach my $path ( keys %{ $self->data_hash->{$key}->{$destino} } ) {
-			my %entry;
-			$entry{destino} = $destino;
-			$entry{pagina}  = $path;
-			$entry{ocurrencias} = $self->data_hash->{$key}->{$destino}->{$path}->{ocurrencias};
-			$entry{trafico} = $self->data_hash->{$key}->{$destino}->{$path}->{trafico};
-			push @aaData, \%entry;
-		}
+		my %entry;
+		$entry{destino} = $destino;
+		$entry{ocurrencias} = $self->data_hash->{$key}->{$destino}->{ocurrencias};
+		$entry{trafico} = $self->data_hash->{$key}->{$destino}->{trafico};
+		push @aaData, \%entry;
 	}
 	return @aaData;
 }
@@ -47,15 +43,13 @@ sub get_global_results {
 	my ($self) = @_;
 	foreach my $date ( keys %{ $self->data_hash } ) {
 		foreach my $destino ( keys %{ $self->data_hash->{$date} } ) {
-			foreach my $pagina (keys %{$self->data_hash->{$date}->{$destino}}){
-				if ( exists $self->data_hash->{$destino}->{$pagina} ) {
-					$self->data_hash->{$destino}->{$pagina}->{ocurrencias} +=
-					  $self->data_hash->{$date}->{$destino}->{$pagina}->{ocurrencias};
-					 $self->data_hash->{$destino}->{$pagina}->{trafico} +=
-					  $self->data_hash->{$date}->{$destino}->{$pagina}->{trafico};
-				} else {
-					$self->data_hash->{$destino}->{$pagina} = $self->data_hash->{$date}->{$destino}->{$pagina};
-				}
+			if ( exists $self->data_hash->{$destino} ) {
+				$self->data_hash->{$destino}->{ocurrencias} +=
+				  $self->data_hash->{$date}->{$destino}->{ocurrencias};
+				 $self->data_hash->{$destino}->{trafico} +=
+				  $self->data_hash->{$date}->{$destino}->{trafico};
+			} else {
+				$self->data_hash->{$destino} = $self->data_hash->{$date}->{$destino};
 			}
 		}
 		delete($self->data_hash->{$date});
@@ -71,12 +65,12 @@ sub new_entry {
 
 sub get_level {
 	my ($self) = @_;
-	return 2;
+	return 1;
 }
 
 sub get_fields {
 	my ($self) = @_;
-	return [qw(destino pagina)];
+	return [qw(destino)];
 }
 
 sub get_sort_field {
