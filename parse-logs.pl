@@ -34,7 +34,7 @@ push (@parsers, new SearchReportGenerator($conf, $writer));
 push (@parsers, new UsuarioTraficoReportGenerator($conf, $writer));
 push (@parsers, new PaginaUsuariosReportGenerator($conf, $writer));
 my $parser = new Parser( \@parsers, $conf);
-my @files = map {$conf->log_dir.$_} @{Utils->get_files_list($conf->log_dir)};
+my @files = map {$conf->log_dir.$_} @{Utils->get_files_list($conf->log_dir, $conf->file_patterns)};
 $parser->parse_files(\@files);
 my $tf = Benchmark->new;
 my $td = timediff($tf, $t0);

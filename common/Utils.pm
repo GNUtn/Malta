@@ -2,10 +2,10 @@ package Utils;
 use Mouse;
 
 sub get_files_list {
-	my ( $class, $dir_path ) = @_;
+	my ( $class, $dir_path, $file_patterns ) = @_;
 
 	opendir my $dir, $dir_path or die "Cannot open directory: $!";
-	my @files = sort( grep( !/^(\.|\.\.)$/, readdir($dir) ) );
+	my @files = sort( grep( /$file_patterns/, readdir($dir) ) );
 	closedir $dir;
 	return \@files;
 }
