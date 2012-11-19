@@ -9,4 +9,30 @@
 		<summarizer_name>Transito</summarizer_name>
 	</summarizer>
 </counter>
+<counter>
+	<name>Categoria_denegada</name>
+	<field_index>28</field_index>
+	<exclude>
+		<field>24</field>
+		<condition>[^Denied]</condition>
+	</exclude>
+</counter>
+<counter>
+	<name>Host</name>
+	<field_index>0</field_index>
+</counter>
+<counter>
+	<name>Paginas</name>
+	<field_index>16</field_index>
+	<preprocess>tr/[A-Z]/[a-z]/</preprocess>
+</counter>
+<counter>
+	<name>Codigos_de_estado</name>
+	<field_index>18</field_index>
+	<preprocess>s/^2\d\d$/Success/</preprocess>
+	<preprocess>s/^3\d\d$/Redirect/</preprocess>
+	<preprocess>s/^4\d\d$/Client error/</preprocess>
+	<preprocess>s/^5\d\d$/Server error/</preprocess>
+	<preprocess>s/^(\d\d\d\d+|1\d\d|\d\d|\d|(6|7|8|9)\d\d+)$/Otras/</preprocess>
+</counter>
 </root>

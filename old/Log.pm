@@ -256,6 +256,9 @@ sub process {
 				threads->new( \&save_xmlT, $self, $minute_count,
 					"/var/www/MaltaWeb/data/minute_" . $last_date_time->strftime( "%Y%m%d%H%M" . ".xml" ),
 					'minute' );
+#				$self->save_xmlT($minute_count,
+#					"/var/www/MaltaWeb/data/minute_" . $last_date_time->strftime( "%Y%m%d%H%M" . ".xml" ),
+#					'minute' );
 				$minute_count = 1;
 				$date_changed = 1;
 				$self->_create_counters();
@@ -298,7 +301,7 @@ sub save_xmlT {
 	foreach my $counter (@{$self->_counters} ) {
 		$xml->startTag( $counter->name() . 's' );
 		$xml->startTag( $counter->name() . 's_distincts' );
-		$xml->characters( length(keys %{$counter->counters()}) );
+		$xml->characters( scalar (keys  %{$counter->counters} ) );
 		$xml->endTag();
 		my $hits_count = 0;
 		foreach my $key_counters ( keys %{$counter->counters()} ) {
@@ -307,9 +310,11 @@ sub save_xmlT {
 				'name' => $key_counters, 
 				'hits' => $counter->counters()->{$key_counters}
 			);
-			foreach my $key_summarizers (%{$counter->summarizers_sums->{$key_counters}}){
-#				$xml->startTag($key_summarizers );
-#				$xml->endTag();
+			 
+			foreach my $key_summarizers (keys %{$counter->summarizers_sums->{$key_counters}}){
+				$xml->startTag($key_summarizers);# 
+				$xml->characters($counter->summarizers_sums->{$key_counters}->{$key_summarizers});
+				$xml->endTag();
 			}
 			$hits_count += $counter->counters()->{$key_counters};
 			$xml->endTag();
