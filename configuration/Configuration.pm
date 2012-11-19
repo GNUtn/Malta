@@ -105,4 +105,11 @@ has 'top_limit' => (
 	isa     => 'Int',
 	default => '10000'
 );
+
+has 'file_patterns' => (
+	is      => 'rw',
+	isa     => 'Str',
+	#Default: Matches all files except "." and ".."
+	default => '^(?!^\.).*$'
+);
 1;

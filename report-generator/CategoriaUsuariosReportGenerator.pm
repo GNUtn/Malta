@@ -9,12 +9,11 @@ sub parse_values {
 	
 	if ($action eq 'Denied') {
 		my $category = @$values[ $self->config->{fields}->{'UrlCategory'} ];
-		my $url   = @$values[ $self->config->{fields}->{'cs-referred'} ];
-		my $uri   = $self->parse_url($url);
+		my $uri   = $self->parse_url($self->get_url($values));
 		eval {$uri->host; $uri->path};
         if (!$@) {
 			my $user = @$values[ $self->config->{fields}->{'cs-username'} ];
-			my $entry = $self->get_entry( $category, $user, "http://".$uri->host.$uri->path );
+			my $entry = $self->get_entry( $category, $user, lc "http://".$uri->host.$uri->path );
 			$entry->{ocurrencias} += 1;
         }
 	}

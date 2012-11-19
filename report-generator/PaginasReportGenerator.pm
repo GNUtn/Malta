@@ -5,9 +5,8 @@ require 'Utils.pm';
 
 sub parse_values {
 	my ( $self, $values ) = @_;
-	my $url   = @$values[ $self->config->{fields}->{'cs-uri'} ];
-	my $uri   = $self->parse_url($url);
-	my $entry = $self->get_entry( $uri->host, $uri->path );
+	my $uri   = $self->parse_url($self->get_url($values));
+	my $entry = $self->get_entry( $uri->host );
 	$entry->{ocurrencias} += 1;
 	$entry->{trafico} += $self->get_trafico($values);
 }
@@ -17,29 +16,13 @@ sub get_file_name {
 }
 
 sub get_entry {
-	my ( $self, $destino, $pagina ) = @_;
+	my ( $self, $destino ) = @_;
 
-	if ( !exists $self->data_hash->{$destino}->{$pagina} ) {
-		$self->data_hash->{$destino}->{$pagina} = $self->new_entry;
+	if ( !exists $self->data_hash->{$destino} ) {
+		$self->data_hash->{$destino} = $self->new_entry;
 	}
 
-	return $self->data_hash->{$destino}->{$pagina};
-}
-
-sub flatten_data {
-	my ($self) = @_;
-	my @aaData = ();
-	foreach my $destino ( keys %{ $self->data_hash } ) {
-		foreach my $path ( keys %{ $self->data_hash->{$destino} } ) {
-			my %entry;
-			$entry{destino} = $destino;
-			$entry{pagina}  = $path;
-			$entry{ocurrencias} = $self->data_hash->{$destino}->{$path}->{ocurrencias};
-			$entry{trafico} = $self->data_hash->{$destino}->{$path}->{trafico};
-			push @aaData, \%entry;
-		}
-	}
-	return @aaData;
+	return $self->data_hash->{$destino};
 }
 
 sub new_entry {
@@ -50,12 +33,12 @@ sub new_entry {
 
 sub get_level {
 	my ($self) = @_;
-	return 2;
+	return 1;
 }
 
 sub get_fields {
 	my ($self) = @_;
-	return [qw(destino pagina)];
+	return [qw(destino)];
 }
 
 sub get_sort_field {
