@@ -93,9 +93,10 @@ sub _preprocess_field {
 sub _exclude_line {
 	my $self  = shift;
 	my @line_splited = @{ $_[0] };
-
+	
 	foreach my $field_exclude ( keys  %{$self->exclude}) {
-		if($line_splited[$field_exclude] =~ m/$self->exclude{$field_exclude}/i){
+		my $cond = $self->exclude->{$field_exclude};
+		if($line_splited[$field_exclude] =~ m/$cond/i){
 			return 1;
 		}
 	}
@@ -132,8 +133,3 @@ __PACKAGE__->meta->make_immutable;
 1;
 
 __END__
-
-_create_hash_counter_distinct ->
-_counter_indexes 
-_update_counters_distincts
-_load_counters_distinct
