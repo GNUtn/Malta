@@ -1,4 +1,4 @@
-package CategoriaUsuariosReportGenerator;
+package CategoriaUsuarioPaginaReportGenerator;
 use Mouse;
 extends 'ReportGenerator';
 require 'Utils.pm';
@@ -20,7 +20,7 @@ sub parse_values {
 }
 
 sub get_file_name {
-	return "categoria_usuario.json";
+	return "categoria_usuario_pagina.json";
 }
 
 sub get_entry {
