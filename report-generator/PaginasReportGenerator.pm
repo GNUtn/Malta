@@ -7,9 +7,12 @@ sub parse_values {
 	my ( $self, $values ) = @_;
 	my $date  = @$values[ $self->config->{fields}->{'date'} ];
 	my $uri   = $self->parse_url($self->get_url($values));
-	my $entry = $self->get_entry( $date, $uri->host );
-	$entry->{ocurrencias} += 1;
-	$entry->{trafico} += $self->get_trafico($values);
+	eval {$uri->host};
+	if (!$@) {
+		my $entry = $self->get_entry( $date, $uri->host );
+		$entry->{ocurrencias} += 1;
+		$entry->{trafico} += $self->get_trafico($values);
+	}
 }
 
 sub get_file_name {

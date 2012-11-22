@@ -22,13 +22,18 @@ has 'config' => (
 	isa => 'Configuration',
 );
 
+has 'global_merger' => (
+	is  => 'rw',
+	isa => 'GlobalMerger',
+);
+
 around BUILDARGS => sub {
-	my $orig  = shift;
-	my $class = shift;
+	my ($orig, $class, $config, $writer, $global_merger) = @_;
 
 	return $class->$orig(
-		config => $_[0],
-		writer => $_[1]
+		config => $config,
+		writer => $writer,
+		global_merger => $global_merger 
 	);
 };
 
@@ -43,24 +48,6 @@ sub get_flatten_data {
 	my ($self, $key) = @_;
 	return DataHashFlatten->flatten( $self->get_level(), $self->data_hash->{$key},
 		$self->get_fields() );
-}
-
-sub parse_values {
-
-	# TO BE IMPLEMENTED BY SUBCLASSES
-	#Acá se hacen cosas con los valores y se suman a hash_data
-}
-
-sub post_process {
-
-	# TO BE IMPLEMENTED BY SUBCLASSES
-	#Acá se calculan los porcentajes con los totales y todo eso
-}
-
-sub get_file_name {
-
-	# TO BE IMPLEMENTED BY SUBCLASSES
-	#Devolver el nombre del archivo a escribir para cada reporte
 }
 
 sub parse_url {
@@ -84,6 +71,24 @@ sub get_trafico {
 	my ( $self, $values ) = @_;
 	return ( @$values[ $self->config->{fields}->{'cs-bytes'} ] +
 		  @$values[ $self->config->{fields}->{'sc-bytes'} ] );
+}
+
+sub parse_values {
+
+	# TO BE IMPLEMENTED BY SUBCLASSES
+	#Acá se hacen cosas con los valores y se suman a hash_data
+}
+
+sub post_process {
+
+	# TO BE IMPLEMENTED BY SUBCLASSES
+	#Acá se calculan los porcentajes con los totales y todo eso
+}
+
+sub get_file_name {
+
+	# TO BE IMPLEMENTED BY SUBCLASSES
+	#Devolver el nombre del archivo a escribir para cada reporte
 }
 
 #Agregar acá métodos comunes a todos como es_acceso(), get_fecha(), etc.

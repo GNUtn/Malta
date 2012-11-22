@@ -54,4 +54,8 @@ sub new_entry {
 	my %entry = ( peticiones => 0, trafico => 0 );
 	return \%entry;
 }
+
+sub get_level {
+	return 0;
+}
 1;

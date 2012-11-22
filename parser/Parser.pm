@@ -58,6 +58,7 @@ sub parse_file {
 			$report_generator->parse_values( \@values );
 		}
 	}
+	close INPUT;
 }
 
 sub is_excluded_line {

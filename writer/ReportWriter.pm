@@ -1,8 +1,10 @@
 package ReportWriter;
 use Mouse;
 require 'Date.pm';
+require 'GlobalMerger.pm';
 use JSON;
 use File::Path qw(make_path);
+use File::Slurp;
 
 has 'config' => (
 	is  => 'rw',
@@ -13,9 +15,7 @@ around BUILDARGS => sub {
 	my $orig  = shift;
 	my $class = shift;
 
-	return $class->$orig(
-		config => $_[0],
-	);
+	return $class->$orig( config => $_[0], );
 };
 
 sub write {
@@ -28,28 +28,55 @@ sub write {
 }
 
 sub write_report {
-	my ( $self, $data_hash, $caller, $output_dir, $file_name ) = @_;
+	my ( $self, $data_hash, $report_geneator, $output_dir, $file_name ) = @_;
 	print "Writing resutls for file: ", $file_name, "...\n";
-	
-	foreach my $date (keys %$data_hash) {
-		
+
+	foreach my $date ( keys %$data_hash ) {
+
 		my $date_obj = Date->new($date);
 		my $date_output_dir = $date_obj->year . '/' . $date_obj->month . '/' . $date_obj->day . '/';
-		
-		#TODO Internally we only need global (?)
-		#$self->write( $data_hash->{$date}, $output_dir . 'internal/' , $file_name );
 
-		my @aaData = $caller->get_flatten_data($date);
+		my @aaData = $report_geneator->get_flatten_data($date);
 
 		my %data = ( aaData => \@aaData );
 		my $output = $output_dir . 'datatables/' . $date_output_dir;
 		$self->write( \%data, $output, $file_name );
 
-		$self->write_top( \%data, $caller->get_sort_field, $output, $file_name );
+		$self->write_top( \%data, $report_geneator->get_sort_field, $output, $file_name );
 	}
-	
-	my $global_data = $caller->get_global_results;
-	$self->write( $global_data, $output_dir . "internal/", $caller->get_file_name );
+
+	my $global_filename = $output_dir . 'internal/'.$file_name;
+	if ( -f $global_filename ) {
+		print "Existe: $global_filename\n";
+		$self->update_globals( $data_hash, $report_geneator, $output_dir . 'internal/', $file_name );
+	}
+	else {
+		print "NOO Existe: $global_filename\n";
+		$self->write(
+			$report_geneator->get_global_results,
+			$output_dir . "internal/",
+			$report_geneator->get_file_name
+		);
+	}
+}
+
+sub update_globals {
+	my ( $self, $data_hash, $report_geneator, $output_dir, $filename ) = @_;
+
+	my $globals = $self->load_globals( $output_dir . $filename );
+	foreach my $date ( keys %$data_hash ) {
+		$report_geneator->global_merger->merge( $globals, $data_hash->{$date}, $report_geneator->get_level );
+	}
+
+	$self->write( $globals, $output_dir, $filename );
+
+}
+
+sub load_globals {
+	my ( $self, $file ) = @_;
+	my $text    = read_file($file);
+	my $globals = JSON->new->decode($text);
+	return $globals;
 }
 
 sub write_top {
@@ -65,7 +92,7 @@ sub write_top {
 }
 
 sub create_dir {
-	my ($self, $dir) = @_;
-	(make_path $dir or die "Unable to create $dir\n $!") unless -d $dir
+	my ( $self, $dir ) = @_;
+	( make_path $dir or die "Unable to create $dir\n $!" ) unless -d $dir;
 }
 1;
