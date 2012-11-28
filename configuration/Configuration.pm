@@ -19,6 +19,12 @@ has 'debug' => (
 	default => ''
 );
 
+has 'version' => (
+	is      => 'ro',
+	isa     => 'Str',
+	default => '0.3'
+);
+
 has 'field_sep' => (
 	is      => 'rw',
 	isa     => 'Str',
