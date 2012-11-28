@@ -26,26 +26,6 @@ sub get_entry {
 	return $self->data_hash->{$date}->{$categoria}->{$status};
 }
 
-sub get_global_results {
-	my ($self) = @_;
-	foreach my $date ( keys %{ $self->data_hash } ) {
-		foreach my $categoria ( keys %{ $self->data_hash->{$date} } ) {
-			foreach my $status (keys %{$self->data_hash->{$date}->{$categoria}}){
-				if ( exists $self->data_hash->{$categoria}->{$status} ) {
-					$self->data_hash->{$categoria}->{$status}->{ocurrencias} +=
-					  $self->data_hash->{$date}->{$categoria}->{$status}->{ocurrencias};
-				} else {
-					$self->data_hash->{$categoria}->{$status} = $self->data_hash->{$date}->{$categoria}->{$status};
-				}
-				delete($self->data_hash->{$date}->{$categoria}->{$status});
-			}
-			delete($self->data_hash->{$date}->{$categoria});
-		}
-		delete($self->data_hash->{$date});
-	}
-	return $self->data_hash;
-}
-
 sub new_entry {
 	my ( $self, $status ) = @_;
 	my %entry = (

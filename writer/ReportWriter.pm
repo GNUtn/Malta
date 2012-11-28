@@ -49,16 +49,7 @@ sub write_report {
 	}
 
 	my $global_filename = $output_dir . 'internal/'.$file_name;
-	if ( -f $global_filename ) {
-		$self->update_globals( $data_hash, $report_geneator, $output_dir . 'internal/', $file_name );
-	}
-	else {
-		$self->write(
-			$report_geneator->get_global_results,
-			$output_dir . "internal/",
-			$report_geneator->get_file_name
-		);
-	}
+	$self->update_globals( $data_hash, $report_geneator, $output_dir . 'internal/', $file_name );
 }
 
 sub update_globals {
@@ -75,8 +66,11 @@ sub update_globals {
 
 sub load_globals {
 	my ( $self, $file ) = @_;
-	my $text    = read_file($file);
-	my $globals = JSON->new->decode($text);
+	my $globals = {};
+	if ( -f $file ) {
+		my $text    = read_file($file);
+		$globals = JSON->new->decode($text);
+	}
 	return $globals;
 }
 

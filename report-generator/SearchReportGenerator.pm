@@ -46,23 +46,6 @@ sub get_entry {
 	return $self->data_hash->{$date}->{$query};
 }
 
-sub get_global_results {
-	my ($self) = @_;
-	foreach my $date ( keys %{ $self->data_hash } ) {
-		foreach my $query ( keys %{ $self->data_hash->{$date} } ) {
-			if ( exists $self->data_hash->{$query} ) {
-				$self->data_hash->{$query}->{ocurrencias} +=
-				  $self->data_hash->{$date}->{$query}->{ocurrencias};
-			} else {
-				$self->data_hash->{$query} = $self->data_hash->{$date}->{$query};
-			}
-			delete($self->data_hash->{$date}->{$query});
-		}
-		delete($self->data_hash->{$date});
-	}
-	return $self->data_hash;
-}
-
 sub new_entry {
 	my ($self) = @_;
 	my %entry = ( ocurrencias => 0, );

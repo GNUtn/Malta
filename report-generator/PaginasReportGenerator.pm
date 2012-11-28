@@ -42,24 +42,6 @@ sub get_flatten_data {
 	return @aaData;
 }
 
-sub get_global_results {
-	my ($self) = @_;
-	foreach my $date ( keys %{ $self->data_hash } ) {
-		foreach my $destino ( keys %{ $self->data_hash->{$date} } ) {
-			if ( exists $self->data_hash->{$destino} ) {
-				$self->data_hash->{$destino}->{ocurrencias} +=
-				  $self->data_hash->{$date}->{$destino}->{ocurrencias};
-				 $self->data_hash->{$destino}->{trafico} +=
-				  $self->data_hash->{$date}->{$destino}->{trafico};
-			} else {
-				$self->data_hash->{$destino} = $self->data_hash->{$date}->{$destino};
-			}
-		}
-		delete($self->data_hash->{$date});
-	}
-	return $self->data_hash;
-}
-
 sub new_entry {
 	my ($self) = @_;
 	my %entry = ( ocurrencias => 0, trafico => 0 );

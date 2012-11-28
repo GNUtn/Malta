@@ -30,24 +30,6 @@ sub get_entry {
 	return $self->data_hash->{$date}->{$categoria}->{$usuario};
 }
 
-sub get_global_results {
-       my ($self) = @_;
-       foreach my $date ( keys %{ $self->data_hash } ) {
-               foreach my $categoria ( keys %{ $self->data_hash->{$date} } ) {
-                       foreach my $usuario (keys %{$self->data_hash->{$date}->{$categoria}}){
-                               if ( exists $self->data_hash->{$categoria}->{$usuario} ) {
-                                       $self->data_hash->{$categoria}->{$usuario}->{ocurrencias} +=
-                                         $self->data_hash->{$date}->{$categoria}->{$usuario}->{ocurrencias};
-                               } else {
-                                       $self->data_hash->{$categoria}->{$usuario} = $self->data_hash->{$date}->{$categoria}->{$usuario};
-                               }
-                       }
-               }
-               delete($self->data_hash->{$date});
-       }
-       return $self->data_hash;
-}
-
 sub new_entry {
 	my ($self) = @_;
 	my %entry = (

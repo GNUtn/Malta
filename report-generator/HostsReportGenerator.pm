@@ -27,26 +27,6 @@ sub post_process {
 	}
 }
 
-sub get_global_results {
-	my ($self) = @_;
-	foreach my $date ( keys %{ $self->data_hash } ) {
-		foreach my $host ( keys %{ $self->data_hash->{$date} } ) {
-			if ( exists $self->data_hash->{$host} ) {
-				$self->data_hash->{$host}->{peticiones} += $self->data_hash->{$date}->{$host}->{peticiones};
-				$self->data_hash->{$host}->{trafico} += $self->data_hash->{$date}->{$host}->{trafico};
-				if (Date->new($self->data_hash->{$date}->{$host}->{last_occurrence})->compare_to(Date->new($self->data_hash->{$host}->{last_occurrence})) < 0) {
-					$self->data_hash->{$host}->{last_occurrence} = $self->data_hash->{$date}->{$host}->{last_occurrence};
-				}
-			} else {
-				$self->data_hash->{$host} = $self->data_hash->{$date}->{$host};
-			}
-			delete($self->data_hash->{$date}->{$host});
-		}
-		delete($self->data_hash->{$date});
-	}
-	return $self->data_hash;
-}
-
 sub get_file_name {
 	return "hosts.json";
 }

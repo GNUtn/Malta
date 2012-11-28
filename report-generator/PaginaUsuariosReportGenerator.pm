@@ -47,24 +47,6 @@ sub get_entry {
 	return $self->data_hash->{$date}->{$usuario}->{$pagina};
 }
 
-sub get_global_results {
-	my ($self) = @_;
-	foreach my $date ( keys %{ $self->data_hash } ) {
-		foreach my $usuario ( keys %{ $self->data_hash->{$date} } ) {
-			foreach my $pagina (keys %{$self->data_hash->{$date}->{$usuario}}){
-				if ( exists $self->data_hash->{$usuario}->{$pagina} ) {
-					$self->data_hash->{$usuario}->{$pagina}->{ocurrencias} +=
-					  $self->data_hash->{$date}->{$usuario}->{$pagina}->{ocurrencias};
-				} else {
-					$self->data_hash->{$usuario}->{$pagina} = $self->data_hash->{$date}->{$usuario}->{$pagina};
-				}
-			}
-		}
-		delete($self->data_hash->{$date});
-	}
-	return $self->data_hash;
-}
-
 sub new_entry {
 	my ($self) = @_;
 	my %entry = (
