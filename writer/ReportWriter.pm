@@ -22,14 +22,17 @@ sub write {
 	my ( $self, $data, $output_dir, $filename ) = @_;
 	$self->create_dir($output_dir);
 	my $file = $output_dir . $filename;
-	open( FILEOUT, ">", $file ) or die $file, $!;
+	my $log = Log::Log4perl->get_logger("ReportWriter");
+	open( FILEOUT, ">", $file ) or $log->logdie($file, $!);
 	print FILEOUT JSON->new->pretty(1)->encode($data);
 	close FILEOUT;
 }
 
 sub write_report {
 	my ( $self, $data_hash, $report_geneator, $output_dir, $file_name ) = @_;
-	print "Writing resutls for file: ", $file_name, "...\n";
+	my $log = Log::Log4perl->get_logger("ReportWriter");
+	
+	$log->info("Writing resutls for file: ", $file_name, "...");
 
 	foreach my $date ( keys %$data_hash ) {
 
@@ -47,11 +50,9 @@ sub write_report {
 
 	my $global_filename = $output_dir . 'internal/'.$file_name;
 	if ( -f $global_filename ) {
-		print "Existe: $global_filename\n";
 		$self->update_globals( $data_hash, $report_geneator, $output_dir . 'internal/', $file_name );
 	}
 	else {
-		print "NOO Existe: $global_filename\n";
 		$self->write(
 			$report_geneator->get_global_results,
 			$output_dir . "internal/",
@@ -93,6 +94,7 @@ sub write_top {
 
 sub create_dir {
 	my ( $self, $dir ) = @_;
-	( make_path $dir or die "Unable to create $dir\n $!" ) unless -d $dir;
+	my $log = Log::Log4perl->get_logger("ReportWriter");
+	( make_path $dir or $log->logdie("Unable to create $dir\n $!") ) unless -d $dir;
 }
 1;

@@ -22,7 +22,9 @@ require 'PaginaUsuariosReportGenerator.pm';
 require 'ReportWriter.pm';
 require 'GlobalMerger.pm';
 require 'StatusGlobalMerger.pm';
+use Log::Log4perl;
 
+Log::Log4perl->init("configuration/log4perl.conf");
 my $t0 = Benchmark->new;
 my $conf = Configuration->new();
 my $writer = ReportWriter->new($conf);
@@ -48,5 +50,7 @@ $parser->parse_files(\@files);
 my $tf = Benchmark->new;
 my $td = timediff($tf, $t0);
 
-print "Done.\n";
-print "Time elapsed: ", timestr($td), "\n";
+my $log = Log::Log4perl->get_logger("main");
+
+$log->info("Done.");
+$log->info("Time elapsed: ", timestr($td));

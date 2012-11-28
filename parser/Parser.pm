@@ -42,9 +42,11 @@ sub parse_files {
 
 sub parse_file {
 	my ( $self, $file_path ) = @_;
-	open( INPUT, "<$file_path" ) or die $!, $file_path;
+	my $log = Log::Log4perl->get_logger("Parser");
 	
-	print "Computing data from file: ", $file_path, "...\n";
+	open( INPUT, "<$file_path" ) or $log->logdie($!, $file_path);
+	
+	$log->info("Computing data from file: ", $file_path, "...");
 
 	while (<INPUT>) {
 		my $line = Utils->rstrip($_);
