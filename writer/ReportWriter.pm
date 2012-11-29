@@ -22,17 +22,16 @@ sub write {
 	my ( $self, $data, $output_dir, $filename ) = @_;
 	$self->create_dir($output_dir);
 	my $file = $output_dir . $filename;
-	my $log = Log::Log4perl->get_logger("ReportWriter");
-	open( FILEOUT, ">", $file ) or $log->logdie($file, $!);
+	open( FILEOUT, ">", $file ) or 
+		Log::Log4perl->get_logger("ReportWriter")->logdie( $file, $! );
 	print FILEOUT JSON->new->pretty(1)->encode($data);
 	close FILEOUT;
 }
 
 sub write_report {
 	my ( $self, $data_hash, $report_geneator, $output_dir, $file_name ) = @_;
-	my $log = Log::Log4perl->get_logger("ReportWriter");
-	
-	$log->info("Writing resutls for file: ", $file_name, "...");
+
+	Log::Log4perl->get_logger("ReportWriter")->info( "Writing resutls for file: ", $file_name, "..." );
 
 	foreach my $date ( keys %$data_hash ) {
 
@@ -48,7 +47,7 @@ sub write_report {
 		$self->write_top( \%data, $report_geneator->get_sort_field, $output, $file_name );
 	}
 
-	my $global_filename = $output_dir . 'internal/'.$file_name;
+	my $global_filename = $output_dir . 'internal/' . $file_name;
 	$self->update_globals( $data_hash, $report_geneator, $output_dir . 'internal/', $file_name );
 }
 
@@ -68,7 +67,7 @@ sub load_globals {
 	my ( $self, $file ) = @_;
 	my $globals = {};
 	if ( -f $file ) {
-		my $text    = read_file($file);
+		my $text = read_file($file);
 		$globals = JSON->new->decode($text);
 	}
 	return $globals;
@@ -86,9 +85,18 @@ sub write_top {
 
 }
 
+sub write_version {
+	my ( $self, $dir ) = @_;
+	open( VERSION, ">", $dir . "version" )
+	  or Log::Log4perl->get_logger("ReportWriter")->logdie( "version", $! );
+	print VERSION $self->config->version;
+	close VERSION;
+}
+
 sub create_dir {
 	my ( $self, $dir ) = @_;
-	my $log = Log::Log4perl->get_logger("ReportWriter");
-	( make_path $dir or $log->logdie("Unable to create $dir\n $!") ) unless -d $dir;
+	( make_path $dir or 
+		Log::Log4perl->get_logger("ReportWriter")->logdie("Unable to create $dir\n $!") )
+	  unless -d $dir;
 }
 1;

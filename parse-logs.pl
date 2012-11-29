@@ -47,6 +47,8 @@ my @files = map {$conf->log_dir.$_} @{Utils->get_files_list($conf->log_dir, $con
 
 $parser->parse_files(\@files);
 
+$writer->write_version($conf->output_dir);
+
 my $tf = Benchmark->new;
 my $td = timediff($tf, $t0);
 
