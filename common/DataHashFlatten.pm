@@ -31,7 +31,7 @@ sub flatten {
 		push @flattened, \%new_rec;
 	}
 
-	@flattened;
+	\@flattened;
 }
 
 1;

@@ -10,12 +10,6 @@ sub parse_values {
 	$entry->{trafico} += $self->get_trafico($values);
 }
 
-sub get_flatten_data {
-	my ($self, $key) = @_;
-	my @aaData = ( $self->data_hash->{$key} );
-	return @aaData;
-}
-
 sub get_file_name {
 	return "global.json";
 }
@@ -43,5 +37,9 @@ sub new_entry {
 
 sub get_level {
 	return 0;
+}
+
+sub get_fields {
+	return ();
 }
 1;

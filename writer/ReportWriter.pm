@@ -2,9 +2,12 @@ package ReportWriter;
 use Mouse;
 require 'Date.pm';
 require 'GlobalMerger.pm';
+require 'DataHashFlatten.pm';
 use JSON;
 use File::Path qw(make_path);
 use File::Slurp;
+
+#TODO: This class needs refactor!
 
 has 'config' => (
 	is  => 'rw',
@@ -37,29 +40,34 @@ sub write_report {
 
 		my $date_obj = Date->new($date);
 		my $date_output_dir = $date_obj->year . '/' . $date_obj->month . '/' . $date_obj->day . '/';
+		
+		my $aaData = DataHashFlatten->flatten( $report_geneator->get_level(), $report_geneator->data_hash->{$date},
+		$report_geneator->get_fields() );
 
-		my @aaData = $report_geneator->get_flatten_data($date);
+		my %data = ( aaData => $aaData );
 
-		my %data = ( aaData => \@aaData );
-		my $output = $output_dir . 'datatables/' . $date_output_dir;
-		$self->write( \%data, $output, $file_name );
-
-		$self->write_top( \%data, $report_geneator->get_sort_field, $output, $file_name );
+		$self->write_top( \%data, $report_geneator->get_sort_field, $output_dir . 'datatables/' . $date_output_dir, $file_name );
 	}
 
-	my $global_filename = $output_dir . 'internal/' . $file_name;
-	$self->update_globals( $data_hash, $report_geneator, $output_dir . 'internal/', $file_name );
+	$self->update_globals( $data_hash, $report_geneator, $output_dir, $file_name );
 }
 
 sub update_globals {
 	my ( $self, $data_hash, $report_geneator, $output_dir, $filename ) = @_;
 
-	my $globals = $self->load_globals( $output_dir . $filename );
+	my $globals = $self->load_globals( $output_dir . "internal/" . $filename );
 	foreach my $date ( keys %$data_hash ) {
 		$report_geneator->global_merger->merge( $globals, $data_hash->{$date}, $report_geneator->get_level );
 	}
 
-	$self->write( $globals, $output_dir, $filename );
+	$self->write( $globals, $output_dir . "internal/", $filename );
+	
+	#TODO Esto es para escribir los globales en formato datatables, pero necesita mucha optimización
+#	my $aaData = DataHashFlatten->flatten( $report_geneator->get_level(), $globals,
+#		$report_geneator->get_fields() );
+#	
+#	my %data = ( aaData => $aaData );
+#	$self->write_top( \%data, $report_geneator->get_sort_field, $output_dir."datatables/", $filename );
 
 }
 
@@ -81,7 +89,7 @@ sub write_top {
 		@new = @new[ 0 .. $self->config->top_limit ];
 		$data->{aaData} = \@new;
 	}
-	$self->write( $data, $output_dir . 'top/', $file_name );
+	$self->write( $data, $output_dir, $file_name );
 
 }
 

@@ -44,12 +44,6 @@ sub write_report {
 
 }
 
-sub get_flatten_data {
-	my ($self, $key) = @_;
-	return DataHashFlatten->flatten( $self->get_level(), $self->data_hash->{$key},
-		$self->get_fields() );
-}
-
 sub parse_url {
 	my ( $self, $url ) = @_;
 	if ( $url !~ /.*\/\/.*/ ) {
