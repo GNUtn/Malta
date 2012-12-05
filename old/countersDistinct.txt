@@ -1,8 +1,0 @@
-#TODO: paste this file to xml or config file
-# Name, Counters Fields, Preprocess, ExcludeByField,	ExcludeCondition,	SummarizationFields
-Categoria_denegada	category		action	[^Denied]
-# trafico es requetesize o cs-bytes + sc-bytes?
-Usuario	login	tr/[A-Z]/[a-z]/			requetesize
-Host	host
-Paginas	page	tr/[A-Z]/[a-z]/
-Codigos_de_estado	status	s/^2\d\d$/Success/ s/^3\d\d$/Redirect/ s/^4\d\d$/Client&nbsp;error/ s/^5\d\d$/Server&nbsp;error/ s/^(\d\d\d\d+|1\d\d|\d\d|\d|(6|7|8|9)\d\d+)$/Otras/

@@ -8,6 +8,10 @@
 		<field>14</field>
 		<summarizer_name>Transito</summarizer_name>
 	</summarizer>
+	<summarizer>
+		<field>13</field>
+		<summarizer_name>Transito2</summarizer_name>
+	</summarizer>
 </counter>
 <counter>
 	<name>Categoria_denegada</name>

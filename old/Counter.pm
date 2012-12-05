@@ -101,7 +101,6 @@ sub _exclude_line {
 		}
 	}
 	return 0;
-	
 }
 
 sub count {
