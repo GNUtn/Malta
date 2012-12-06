@@ -9,11 +9,29 @@ sub parse_values {
 	my $uri   = $self->parse_url(@$values[ $self->config->{fields}->{'cs-uri'} ]);
 	eval {$uri->host; $uri->path};
 	if (!$@) {
-		if ($self->is_file($uri->path)){
+		my @mime_type = split(';', @$values[ $self->config->{fields}->{'cs-mime-type'} ]);;
+		if ($self->is_file($uri->path) && $self->filter_by_mime_type( shift(@mime_type) ) ){
 			my $entry = $self->get_entry( $date, $uri->host.$uri->path );
 			$entry->{descargas} += 1;
 			$entry->{transferencia} += $self->get_trafico($values);
 		}
+	}
+}
+
+my @mime_types = ("text/html", "text/plain" , "application/x-shockwave-flash", "-", "", "application/zip", "video/x-flv");
+	
+sub filter_by_mime_type{
+	my $self = shift;
+	my $mime_type = shift;
+	
+	if (defined($mime_type)){
+		if (grep {$_ eq $mime_type} @mime_types){
+			return 1;
+		}else{
+			return 0;
+		}
+	}else{
+		return 1;
 	}
 }
 
