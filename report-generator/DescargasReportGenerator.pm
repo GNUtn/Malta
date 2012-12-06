@@ -18,12 +18,14 @@ sub parse_values {
 	}
 }
 
-my @mime_types = ("text/html", "text/plain" , "application/x-shockwave-flash", "-", "", "application/zip", "video/x-flv");
 	
 sub filter_by_mime_type{
 	my $self = shift;
 	my $mime_type = shift;
 	
+	my @mime_types = ("application/octet-stream",  "text/html", "text/plain", "application/zip", "-", "",
+		"application/pdf", "application/x-shockwave-flash", "video/mp3", "video/mp4", "video/x-flv", 
+		"video/x-m4v");
 	if (defined($mime_type)){
 		if (grep {$_ eq $mime_type} @mime_types){
 			return 1;
@@ -40,7 +42,7 @@ sub is_file {
 	my $self = shift;
 	my $url = shift;
 	
-	if ($url =~ /.*(\.exe|\.rar|\.zip|\.txt|\.pdf|\.fla|\.swf|\.cab|\.mp3|\.mp4|\.m4v)$/m){
+	if ($url =~ /.*(\.exe|\.rar|\.zip|\.txt|\.pdf|\.swf|\.cab|\.mp3|\.mp4|\.m4v)$/m){
 		return 1;
 	}
 	return 0;
