@@ -22,7 +22,8 @@ require 'PaginaUsuariosReportGenerator.pm';
 require 'ReportWriter.pm';
 require 'GlobalMerger.pm';
 require 'StatusGlobalMerger.pm';
-require 'ArchivosMasDescargados.pm';
+require 'DescargasReportGenerator.pm';
+require 'ProtocolosReportGenerator.pm';
 use Log::Log4perl;
 
 Log::Log4perl->init("configuration/log4perl.conf");
@@ -42,14 +43,22 @@ push (@parsers, new CategoriaUsuarioPaginaReportGenerator($conf, $writer, $globa
 push (@parsers, new SearchReportGenerator($conf, $writer, $global_merger));
 push (@parsers, new UsuarioTraficoReportGenerator($conf, $writer, $global_merger));
 push (@parsers, new PaginaUsuariosReportGenerator($conf, $writer, $global_merger));
-push (@parsers, new ArchivosMasDescargados($conf, $writer, StatusGlobalMerger->new()));
+push (@parsers, new DescargasReportGenerator($conf, $writer, $global_merger));
 
 my $parser = Parser->new( \@parsers, $conf);
-my @files = map {$conf->log_dir.$_} @{Utils->get_files_list($conf->log_dir, $conf->file_patterns)};
+my @files = map {$conf->log_dir."WEB/".$_} @{Utils->get_files_list($conf->log_dir."WEB/", $conf->file_patterns)};
 
 $parser->parse_files(\@files);
 
 $writer->write_version($conf->output_dir);
+
+
+#PArse firewall files
+
+@parsers = ();
+push (@parsers, ProtocolosReportGenerator->new($conf, $writer, $global_merger));
+@files = map {$conf->log_dir."FWS/".$_} @{Utils->get_files_list($conf->log_dir."FWS/", $conf->file_patterns)};
+$parser->parse_files(\@files);
 
 my $tf = Benchmark->new;
 my $td = timediff($tf, $t0);

@@ -1,6 +1,5 @@
 package Parser;
 use Mouse;
-use Data::Dumper;
 require 'Utils.pm';
 require 'Configuration.pm';
 
