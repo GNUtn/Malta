@@ -29,7 +29,7 @@ sub get_file_from_path{
 }
 
 sub get_file_name {
-	return "archivosMasDescargados.json";
+	return "descargas.json";
 }
 
 sub get_entry {
