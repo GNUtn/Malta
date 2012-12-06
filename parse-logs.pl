@@ -22,6 +22,7 @@ require 'PaginaUsuariosReportGenerator.pm';
 require 'ReportWriter.pm';
 require 'GlobalMerger.pm';
 require 'StatusGlobalMerger.pm';
+require 'ArchivosMasDescargados.pm';
 use Log::Log4perl;
 
 Log::Log4perl->init("configuration/log4perl.conf");
@@ -41,6 +42,7 @@ push (@parsers, new CategoriaUsuarioPaginaReportGenerator($conf, $writer, $globa
 push (@parsers, new SearchReportGenerator($conf, $writer, $global_merger));
 push (@parsers, new UsuarioTraficoReportGenerator($conf, $writer, $global_merger));
 push (@parsers, new PaginaUsuariosReportGenerator($conf, $writer, $global_merger));
+push (@parsers, new ArchivosMasDescargados($conf, $writer, StatusGlobalMerger->new()));
 
 my $parser = Parser->new( \@parsers, $conf);
 my @files = map {$conf->log_dir.$_} @{Utils->get_files_list($conf->log_dir, $conf->file_patterns)};
