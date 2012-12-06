@@ -1,9 +1,15 @@
 Changelog
 =========
 
+## Versión 0.3.1 ##
+
+  - Se agrega la posibilidad de parsear archivos del Firewall
+  - Se agregan los reportes de:
+    * Archivos Descargados
+    * Protocolos del Firewall
+
 ## Versión 0.3 ##
 
-  - Se agrega la funcionalidad de corrida incremental, mergeando los resultados globales de procesos anteriores
   - Se agrega registros de versión del servidor y changelog.
   - Merge del branch que separa por fechas a la rama principal.
   - Mucho refactor de código.

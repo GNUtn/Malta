@@ -86,12 +86,33 @@ has 'fields' => (
 		return \%hash;
 	}
 );
+
+has 'firewall_fields' => (
+	is      => 'rw',
+	isa     => 'HashRef',
+	default => sub {
+		my %hash = (
+			'computer'             => 0,
+			'date'                 => 1,
+			'time'                 => 2,
+			'source'               => 3,
+			'destination'          => 4,
+			'original client IP'   => 5,
+			'source network'       => 6,
+			'application protocol' => 7,
+			'bytes sent'           => 8,
+			'bytes received'       => 9
+		);
+		return \%hash;
+	}
+);
+
 has 'exclude_patterns' => (
 	is      => 'rw',
 	isa     => 'ArrayRef',
 	default => sub {
 		[ '\tanonymous\t', '\tc2a42ad2e73b149b92edcb84d3e61fc8\t', '^#' ];
-	  }
+	}
 );
 
 has 'valid_line_pattern' => (
@@ -113,8 +134,9 @@ has 'top_limit' => (
 );
 
 has 'file_patterns' => (
-	is      => 'rw',
-	isa     => 'Str',
+	is  => 'rw',
+	isa => 'Str',
+
 	#Default: Matches all files except "." and ".."
 	default => '^(?!^\.).*$'
 );
