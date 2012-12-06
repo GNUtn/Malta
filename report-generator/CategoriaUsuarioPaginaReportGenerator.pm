@@ -34,6 +34,25 @@ sub get_entry {
 	return $self->data_hash->{$date}->{$categoria}->{$usuario}->{$pagina};
 }
 
+sub get_flattened_data {
+	my ($self, $key) = @_;
+	my @aaData = ();
+	foreach my $categoria ( keys %{ $self->data_hash->{$key} } ) {
+		foreach my $usuario ( keys %{ $self->data_hash->{$key}->{$categoria} } ) {
+			foreach my $pagina ( keys %{ $self->data_hash->{$key}->{$categoria}->{$usuario} } ) {
+				my %entry;
+				$entry{categoria} = $categoria;
+				$entry{usuario} = $usuario;
+				$entry{pagina}  = $pagina;
+				$entry{ocurrencias} = $self->data_hash->{$key}->{$usuario}->{$pagina}->{ocurrencias};
+				$entry{trafico} =  $self->data_hash->{$key}->{$usuario}->{$pagina}->{trafico};
+				push @aaData, \%entry;
+			}
+		}
+	}
+	return \@aaData;
+}
+
 sub new_entry {
 	my ($self) = @_;
 	my %entry = (

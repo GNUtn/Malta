@@ -29,7 +29,7 @@ sub get_entry {
 	return $self->data_hash->{$date}->{$destino};
 }
 
-sub get_flatten_data {
+sub get_flattened_data {
 	my ($self, $key) = @_;
 	my @aaData = ();
 	foreach my $destino ( keys %{ $self->data_hash->{$key} } ) {
@@ -39,7 +39,7 @@ sub get_flatten_data {
 		$entry{trafico} = $self->data_hash->{$key}->{$destino}->{trafico};
 		push @aaData, \%entry;
 	}
-	return @aaData;
+	return \@aaData;
 }
 
 sub new_entry {

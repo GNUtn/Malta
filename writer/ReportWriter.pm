@@ -32,32 +32,34 @@ sub write {
 }
 
 sub write_report {
-	my ( $self, $data_hash, $report_geneator, $output_dir, $file_name ) = @_;
-
-	Log::Log4perl->get_logger("ReportWriter")->info( "Writing resutls for file: ", $file_name, "..." );
+	my ( $self, $data_hash, $report_generator, $output_dir, $file_name ) = @_;
+	my $logger = Log::Log4perl->get_logger("ReportWriter");
+	
+	$logger->info( "Writing resutls for file: ", $file_name, "..." );
 
 	foreach my $date ( keys %$data_hash ) {
 
 		my $date_obj = Date->new($date);
 		my $date_output_dir = $date_obj->year . '/' . $date_obj->month . '/' . $date_obj->day . '/';
 		
-		my $aaData = DataHashFlatten->flatten( $report_geneator->get_level(), $report_geneator->data_hash->{$date},
-		$report_geneator->get_fields() );
+		$logger->debug("Flattening data");
+		my $aaData = $report_generator->get_flattened_data($date);
 
 		my %data = ( aaData => $aaData );
 
-		$self->write_top( \%data, $report_geneator->get_sort_field, $output_dir . 'datatables/' . $date_output_dir, $file_name );
+		$self->write_top( \%data, $report_generator->get_sort_field, $output_dir . 'datatables/' . $date_output_dir, $file_name );
 	}
 
-	$self->update_globals( $data_hash, $report_geneator, $output_dir, $file_name );
+	$self->update_globals( $data_hash, $report_generator, $output_dir, $file_name );
 }
 
 sub update_globals {
-	my ( $self, $data_hash, $report_geneator, $output_dir, $filename ) = @_;
+	my ( $self, $data_hash, $report_generator, $output_dir, $filename ) = @_;
 
+	Log::Log4perl->get_logger("ReportWriter")->debug("Updating globals");
 	my $globals = $self->load_globals( $output_dir . "internal/" . $filename );
 	foreach my $date ( keys %$data_hash ) {
-		$report_geneator->global_merger->merge( $globals, $data_hash->{$date}, $report_geneator->get_level );
+		$report_generator->global_merger->merge( $globals, $data_hash->{$date}, $report_generator->get_level );
 	}
 
 	$self->write( $globals, $output_dir . "internal/", $filename );

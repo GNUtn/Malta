@@ -2,6 +2,7 @@ package ReportGenerator;
 use Mouse;
 use URI;
 require 'ReportWriter.pm';
+require 'DataHashFlatten.pm';
 require 'Date.pm';
 
 #Habrá una subclase de esta por cada reporte
@@ -42,6 +43,12 @@ sub write_report {
 	
 	$self->writer->write_report($self->data_hash, $self, $output_dir, $self->get_file_name);
 
+}
+
+sub get_flattened_data {
+	my ($self, $key) = @_;
+	return DataHashFlatten->flatten( $self->get_level(), $self->data_hash->{$key},
+		$self->get_fields() );
 }
 
 sub parse_url {

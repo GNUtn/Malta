@@ -21,7 +21,7 @@ sub get_file_name {
 	return "pagina_usuario.json";
 }
 
-sub get_flatten_data {
+sub get_flattened_data {
 	my ($self, $key) = @_;
 	my @aaData = ();
 	foreach my $usuario ( keys %{ $self->data_hash->{$key} } ) {
@@ -34,7 +34,7 @@ sub get_flatten_data {
 			push @aaData, \%entry;
 		}
 	}
-	return @aaData;
+	return \@aaData;
 }
 
 sub get_entry {
