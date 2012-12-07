@@ -24,7 +24,7 @@ require 'GlobalMerger.pm';
 require 'StatusGlobalMerger.pm';
 require 'DescargasReportGenerator.pm';
 require 'ProtocolosReportGenerator.pm';
-#require 'SimpleReportGenerator.pm';
+require 'SimpleReportGenerator.pm';
 require 'BrowserReportGenerator.pm';
 use Log::Log4perl;
 
@@ -50,6 +50,12 @@ push (@parsers, new DescargasReportGenerator($conf, $writer, $global_merger));
 my $BrowsersReportGenerator = BrowserReportGenerator->new($conf, $writer, $global_merger);
 $BrowsersReportGenerator->field('c-agent');
 $BrowsersReportGenerator->file_name('browsers.json');
+push (@parsers, $BrowsersReportGenerator);
+
+# Clientes unicos
+my $ClientesUnicos = BrowserReportGenerator->new($conf, $writer, $global_merger);
+$BrowsersReportGenerator->field('cs-username');
+$BrowsersReportGenerator->file_name('clients.json');
 push (@parsers, $BrowsersReportGenerator);
 
 my $parser = Parser->new( \@parsers, $conf);
