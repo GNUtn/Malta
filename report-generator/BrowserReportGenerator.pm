@@ -1,22 +1,12 @@
-package SimpleReportGenerator;
+package BrowserReportGenerator;
 use Mouse;
+use HTML::ParseBrowser;
 extends 'ReportGenerator';
 require 'Utils.pm';
 
+
 # El nombre del campo sobre el que se realiza la cuenta.
 has 'field' =>(
-	is      => 'rw',
-	isa     => 'Str'
-);
-
-# Nombre de campo sobre el que se quiere filtrar.
-has 'filter_field' =>(
-	is      => 'rw',
-	isa     => 'Str'
-);
-
-# Condición regex a aplicar para filtrar.
-has 'filter_condition' =>(
 	is      => 'rw',
 	isa     => 'Str'
 );
@@ -33,9 +23,14 @@ sub parse_values {
 	
 	#TODO: agregar filtro (usar filter_field y filter_condition)
 	my $category = @$values[ $self->config->{fields}->{$self->field} ];
-	my $date     = @$values[ $self->config->{fields}->{'date'} ];
-	my $entry    = $self->get_entry( $date, $category );
-	$entry->{ocurrencias} += 1;
+	my $ua = HTML::ParseBrowser->new($category);
+	my $data = "";
+	if ($ua->name){
+		$data =  $data . $ua->name;
+		my $date     = @$values[ $self->config->{fields}->{'date'} ];
+		my $entry    = $self->get_entry( $date, $data );
+		$entry->{ocurrencias} += 1;
+	} 
 }
 
 sub get_entry {

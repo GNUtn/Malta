@@ -25,6 +25,8 @@ require 'StatusGlobalMerger.pm';
 require 'DescargasReportGenerator.pm';
 require 'ProtocolosReportGenerator.pm';
 require 'SimpleReportGenerator.pm';
+require 'BrowserReportGenerator.pm';
+require 'NoCategorizadosReportGenerator.pm';
 use Log::Log4perl;
 use Getopt::Std;
 
@@ -58,6 +60,15 @@ my $browsers_report_generator = SimpleReportGenerator->new($conf, $writer, $glob
 $browsers_report_generator->field('c-agent');
 $browsers_report_generator->file_name('browsers.json');
 push (@parsers, $browsers_report_generator);
+
+# Clientes unicos
+my $ClientesUnicosReportGenerator = SimpleReportGenerator->new($conf, $writer, $global_merger);
+$ClientesUnicosReportGenerator->field('cs-username');
+$ClientesUnicosReportGenerator->file_name('clients.json');
+push (@parsers, $ClientesUnicosReportGenerator);
+
+# Sitios no categorizados
+push (@parsers, NoCategorizadosReportGenerator->new($conf, $writer, $global_merger));
 
 my $parser = Parser->new( \@parsers, $conf);
 my @files = map {$conf->log_dir.$_} @{Utils->get_files_list($conf->log_dir, $conf->web_file_patterns)};
