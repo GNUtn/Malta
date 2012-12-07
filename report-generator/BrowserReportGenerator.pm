@@ -24,9 +24,8 @@ sub parse_values {
 	#TODO: agregar filtro (usar filter_field y filter_condition)
 	my $category = @$values[ $self->config->{fields}->{$self->field} ];
 	my $ua = HTML::ParseBrowser->new($category);
-	my $data = "";
 	if ($ua->name){
-		$data =  $data . $ua->name;
+		my $data =  $ua->name;
 		my $date     = @$values[ $self->config->{fields}->{'date'} ];
 		my $entry    = $self->get_entry( $date, $data );
 		$entry->{ocurrencias} += 1;
