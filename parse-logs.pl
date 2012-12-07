@@ -24,6 +24,7 @@ require 'GlobalMerger.pm';
 require 'StatusGlobalMerger.pm';
 require 'DescargasReportGenerator.pm';
 require 'ProtocolosReportGenerator.pm';
+require 'SimpleReportGenerator.pm';
 use Log::Log4perl;
 
 Log::Log4perl->init("configuration/log4perl.conf");
@@ -44,6 +45,11 @@ push (@parsers, new SearchReportGenerator($conf, $writer, $global_merger));
 push (@parsers, new UsuarioTraficoReportGenerator($conf, $writer, $global_merger));
 push (@parsers, new PaginaUsuariosReportGenerator($conf, $writer, $global_merger));
 push (@parsers, new DescargasReportGenerator($conf, $writer, $global_merger));
+# Browsers report
+my $BrowsersReportGenerator = SimpleReportGenerator->new($conf, $writer, $global_merger);
+$BrowsersReportGenerator->field('c-agent');
+$BrowsersReportGenerator->file_name('browsers.json');
+push (@parsers, $BrowsersReportGenerator);
 
 my $parser = Parser->new( \@parsers, $conf);
 my @files = map {$conf->log_dir."WEB/".$_} @{Utils->get_files_list($conf->log_dir."WEB/", $conf->file_patterns)};
