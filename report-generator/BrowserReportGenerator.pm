@@ -39,9 +39,9 @@ sub parse_values {
 	my $data = "";
 	if ($ua->name){
 		$data =  $data . $ua->name;
-		if ($ua->v){
-			$data = $data . " " . $ua->v;
-		} 
+#		if ($ua->v){
+#			$data = $data . " " . $ua->v;
+#		} 
 		my $date     = @$values[ $self->config->{fields}->{'date'} ];
 		my $entry    = $self->get_entry( $date, $data );
 		$entry->{ocurrencias} += 1;
