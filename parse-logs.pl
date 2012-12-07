@@ -26,6 +26,7 @@ require 'DescargasReportGenerator.pm';
 require 'ProtocolosReportGenerator.pm';
 require 'SimpleReportGenerator.pm';
 require 'BrowserReportGenerator.pm';
+require 'NoCategorizadosReportGenerator.pm';
 use Log::Log4perl;
 
 Log::Log4perl->init("configuration/log4perl.conf");
@@ -53,10 +54,13 @@ $BrowsersReportGenerator->file_name('browsers.json');
 push (@parsers, $BrowsersReportGenerator);
 
 # Clientes unicos
-my $ClientesUnicos = BrowserReportGenerator->new($conf, $writer, $global_merger);
-$BrowsersReportGenerator->field('cs-username');
-$BrowsersReportGenerator->file_name('clients.json');
-push (@parsers, $BrowsersReportGenerator);
+my $ClientesUnicosReportGenerator = SimpleReportGenerator->new($conf, $writer, $global_merger);
+$ClientesUnicosReportGenerator->field('cs-username');
+$ClientesUnicosReportGenerator->file_name('clients.json');
+push (@parsers, $ClientesUnicosReportGenerator);
+
+# Sitios no categorizados
+push (@parsers, NoCategorizadosReportGenerator->new($conf, $writer, $global_merger));
 
 my $parser = Parser->new( \@parsers, $conf);
 my @files = map {$conf->log_dir."WEB/".$_} @{Utils->get_files_list($conf->log_dir."WEB/", $conf->file_patterns)};

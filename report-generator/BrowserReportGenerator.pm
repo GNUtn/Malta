@@ -11,18 +11,6 @@ has 'field' =>(
 	isa     => 'Str'
 );
 
-# Nombre de campo sobre el que se quiere filtrar.
-has 'filter_field' =>(
-	is      => 'rw',
-	isa     => 'Str'
-);
-
-# Condición regex a aplicar para filtrar.
-has 'filter_condition' =>(
-	is      => 'rw',
-	isa     => 'Str'
-);
-
 # el archivo a generar.
 has 'file_name' =>(
 	is      => 'rw',
@@ -39,9 +27,6 @@ sub parse_values {
 	my $data = "";
 	if ($ua->name){
 		$data =  $data . $ua->name;
-#		if ($ua->v){
-#			$data = $data . " " . $ua->v;
-#		} 
 		my $date     = @$values[ $self->config->{fields}->{'date'} ];
 		my $entry    = $self->get_entry( $date, $data );
 		$entry->{ocurrencias} += 1;
