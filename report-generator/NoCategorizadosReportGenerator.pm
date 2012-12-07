@@ -34,7 +34,7 @@ sub get_entry {
 
 sub new_entry {
 	my ($self) = @_;
-	my %entry = ( ocurrencias => 0, );
+	my %entry = ( ocurrencias => 0, trafico => 0);
 	return \%entry;
 }
 
