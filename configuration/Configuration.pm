@@ -133,11 +133,19 @@ has 'top_limit' => (
 	default => '10000'
 );
 
-has 'file_patterns' => (
+has 'web_file_patterns' => (
 	is  => 'rw',
 	isa => 'Str',
 
 	#Default: Matches all files except "." and ".."
-	default => '^(?!^\.).*$'
+	default => 'ISALOG_.*_WEB_.*'
+);
+
+has 'fws_file_patterns' => (
+	is  => 'rw',
+	isa => 'Str',
+
+	#Default: Matches all files except "." and ".."
+	default => 'ISALOG_.*_FWS_.*'
 );
 1;

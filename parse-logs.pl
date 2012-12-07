@@ -25,6 +25,7 @@ require 'StatusGlobalMerger.pm';
 require 'DescargasReportGenerator.pm';
 require 'ProtocolosReportGenerator.pm';
 use Log::Log4perl;
+use Getopt::Std;
 
 Log::Log4perl->init("configuration/log4perl.conf");
 my $t0 = Benchmark->new;
@@ -32,6 +33,13 @@ my $conf = Configuration->new();
 my $writer = ReportWriter->new($conf);
 my $global_merger = GlobalMerger->new();
 my @parsers = ();
+our $opt_f;
+our $opt_w;
+
+#Parse cmd params
+getopts('w:f:');
+$conf->web_file_patterns($opt_w) if $opt_w;
+$conf->fws_file_patterns($opt_f) if $opt_f;
 
 push (@parsers, new GlobalStatsReportGenerator($conf, $writer, $global_merger));
 #push (@parsers, new HostsReportGenerator($conf, $writer));
@@ -46,7 +54,7 @@ push (@parsers, new PaginaUsuariosReportGenerator($conf, $writer, $global_merger
 push (@parsers, new DescargasReportGenerator($conf, $writer, $global_merger));
 
 my $parser = Parser->new( \@parsers, $conf);
-my @files = map {$conf->log_dir."WEB/".$_} @{Utils->get_files_list($conf->log_dir."WEB/", $conf->file_patterns)};
+my @files = map {$conf->log_dir.$_} @{Utils->get_files_list($conf->log_dir, $conf->web_file_patterns)};
 
 $parser->parse_files(\@files);
 
@@ -57,7 +65,7 @@ $writer->write_version($conf->output_dir);
 
 @parsers = ();
 push (@parsers, ProtocolosReportGenerator->new($conf, $writer, $global_merger));
-@files = map {$conf->log_dir."FWS/".$_} @{Utils->get_files_list($conf->log_dir."FWS/", $conf->file_patterns)};
+@files = map {$conf->log_dir.$_} @{Utils->get_files_list($conf->log_dir, $conf->fws_file_patterns)};
 $parser->parse_files(\@files);
 
 my $tf = Benchmark->new;
