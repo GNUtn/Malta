@@ -1,7 +1,9 @@
-package SimpleReportGenerator;
+package BrowserReportGenerator;
 use Mouse;
+use HTML::ParseBrowser;
 extends 'ReportGenerator';
 require 'Utils.pm';
+
 
 # El nombre del campo sobre el que se realiza la cuenta.
 has 'field' =>(
@@ -33,9 +35,17 @@ sub parse_values {
 	
 	#TODO: agregar filtro (usar filter_field y filter_condition)
 	my $category = @$values[ $self->config->{fields}->{$self->field} ];
-	my $date     = @$values[ $self->config->{fields}->{'date'} ];
-	my $entry    = $self->get_entry( $date, $category );
-	$entry->{ocurrencias} += 1;
+	my $ua = HTML::ParseBrowser->new($category);
+	my $data = "";
+	if ($ua->name){
+		$data =  $data . $ua->name;
+		if ($ua->v){
+			$data = $data . " " . $ua->v;
+		} 
+		my $date     = @$values[ $self->config->{fields}->{'date'} ];
+		my $entry    = $self->get_entry( $date, $data );
+		$entry->{ocurrencias} += 1;
+	} 
 }
 
 sub get_entry {
