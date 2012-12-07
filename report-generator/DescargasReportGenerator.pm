@@ -1,21 +1,23 @@
 package DescargasReportGenerator;
 use Mouse;
+use MouseX::NativeTraits::ArrayRef;
 extends 'ReportGenerator';
 require 'Utils.pm';
 
 has 'mime_types' => (
+	traits     => ['Array'],
 	is      => 'rw',
 	isa     => 'ArrayRef',
 	default => sub {
-		my @mime_types = (
-			"application/octet-stream", "text/html",
+			["application/octet-stream", "text/html",
 			"text/plain",               "application/zip",
 			"-",                        "",
 			"application/pdf",          "application/x-shockwave-flash",
 			"video/mp3",                "video/mp4",
-			"video/x-flv",              "video/x-m4v"
-		);
-		return \@mime_types;
+			"video/x-flv",              "video/x-m4v"]
+	},
+	handles    => {
+		filter_mime_types => 'grep'
 	}
 );
 
@@ -42,7 +44,7 @@ sub filter_by_mime_type {
 	my ( $self, $mime_type ) = @_;
 
 	if ( defined($mime_type) ) {
-		return grep { $_ eq $mime_type } $self->mime_types;
+		return $self->filter_mime_types(sub { $_ eq $mime_type });
 	}
 	return 1;
 }
@@ -52,7 +54,7 @@ sub is_file {
 	my ( $self, $url ) = @_;
 
 	return $url =~
-	  /.*(\.exe|\.rar|\.zip|\.txt|\.pdf|\.swf|\.cab|\.mp3|\.mp4|\.m4v)$/m;
+	  m/.*(\.exe|\.rar|\.zip|\.txt|\.pdf|\.swf|\.cab|\.mp3|\.mp4|\.m4v)$/;
 }
 
 sub get_file_name {
@@ -67,20 +69,6 @@ sub get_entry {
 	}
 
 	return $self->data_hash->{$date}->{$archivo};
-}
-
-sub get_flattened_data {
-	my ($self, $key) = @_;
-	my @aaData = ();
-	foreach my $archivo ( keys %{ $self->data_hash->{$key} } ) {
-		my %entry;
-		$entry{archivo}   = $archivo;
-		$entry{descargas} = $self->data_hash->{$key}->{$archivo}->{descargas};
-		$entry{transferencia} =
-		  $self->data_hash->{$key}->{$archivo}->{transferencia};
-		push @aaData, \%entry;
-	}
-	return \@aaData;
 }
 
 sub new_entry {

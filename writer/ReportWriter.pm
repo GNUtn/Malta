@@ -43,7 +43,7 @@ sub write_report {
 		my $date_output_dir = $date_obj->year . '/' . $date_obj->month . '/' . $date_obj->day . '/';
 		
 		$logger->debug("Flattening data");
-		my $aaData = $report_generator->get_flattened_data($date);
+		my $aaData = $report_generator->get_flattened_data($data_hash->{$date});
 
 		my %data = ( aaData => $aaData );
 
@@ -64,12 +64,10 @@ sub update_globals {
 
 	$self->write( $globals, $output_dir . "internal/", $filename );
 	
-	#TODO Esto es para escribir los globales en formato datatables, pero necesita mucha optimización
-#	my $aaData = DataHashFlatten->flatten( $report_geneator->get_level(), $globals,
-#		$report_geneator->get_fields() );
+#	my $aaData = $report_generator->get_flattened_data;
 #	
 #	my %data = ( aaData => $aaData );
-#	$self->write_top( \%data, $report_geneator->get_sort_field, $output_dir."datatables/", $filename );
+#	$self->write_top( \%data, $report_generator->get_sort_field, $output_dir."datatables/", $filename );
 
 }
 

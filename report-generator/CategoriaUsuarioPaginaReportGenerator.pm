@@ -6,17 +6,18 @@ require 'Utils.pm';
 sub parse_values {
 	my ( $self, $values ) = @_;
 	my $action = @$values[ $self->config->{fields}->{'action'} ];
-	
-	if ($action eq 'Denied') {
-		my $date = @$values[ $self->config->{fields}->{'date'} ];
+
+	if ( $action eq 'Denied' ) {
+		my $date     = @$values[ $self->config->{fields}->{'date'} ];
 		my $category = @$values[ $self->config->{fields}->{'UrlCategory'} ];
-		my $uri   = $self->parse_url($self->get_url($values));
-		eval {$uri->host; $uri->path};
-        if (!$@) {
-			my $user = @$values[ $self->config->{fields}->{'cs-username'} ];
-			my $entry = $self->get_entry( $date, $category, $user, lc "http://".$uri->host.$uri->path );
+		my $uri      = $self->parse_url( $self->get_url($values) );
+		eval { $uri->host; $uri->path };
+		if ( !$@ ) {
+			my $user  = @$values[ $self->config->{fields}->{'cs-username'} ];
+			my $entry = $self->get_entry( $date, $category, $user,
+				lc "http://" . $uri->host . $uri->path );
 			$entry->{ocurrencias} += 1;
-        }
+		}
 	}
 }
 
@@ -35,17 +36,16 @@ sub get_entry {
 }
 
 sub get_flattened_data {
-	my ($self, $key) = @_;
+	my ( $self, $hash_ref ) = @_;
 	my @aaData = ();
-	foreach my $categoria ( keys %{ $self->data_hash->{$key} } ) {
-		foreach my $usuario ( keys %{ $self->data_hash->{$key}->{$categoria} } ) {
-			foreach my $pagina ( keys %{ $self->data_hash->{$key}->{$categoria}->{$usuario} } ) {
+	foreach my $categoria ( keys %{$hash_ref} ) {
+		foreach my $usuario ( keys %{ $hash_ref->{$categoria} } ) {
+			foreach my $pagina ( keys %{ $hash_ref->{$categoria}->{$usuario} } ) {
 				my %entry;
 				$entry{categoria} = $categoria;
-				$entry{usuario} = $usuario;
-				$entry{pagina}  = $pagina;
-				$entry{ocurrencias} = $self->data_hash->{$key}->{$usuario}->{$pagina}->{ocurrencias};
-				$entry{trafico} =  $self->data_hash->{$key}->{$usuario}->{$pagina}->{trafico};
+				$entry{usuario}   = $usuario;
+				$entry{pagina}    = $pagina;
+				$entry{ocurrencias} = $hash_ref->{$categoria}->{$usuario}->{$pagina}->{ocurrencias};
 				push @aaData, \%entry;
 			}
 		}
@@ -55,9 +55,7 @@ sub get_flattened_data {
 
 sub new_entry {
 	my ($self) = @_;
-	my %entry = (
-		ocurrencias => 0
-	);
+	my %entry = ( ocurrencias => 0 );
 	return \%entry;
 }
 
@@ -72,7 +70,7 @@ sub get_fields {
 }
 
 sub get_sort_field {
-	my ( $self ) = @_;
+	my ($self) = @_;
 	return 'ocurrencias';
 }
 1;

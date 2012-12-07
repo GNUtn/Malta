@@ -54,10 +54,10 @@ push (@parsers, new UsuarioTraficoReportGenerator($conf, $writer, $global_merger
 push (@parsers, new PaginaUsuariosReportGenerator($conf, $writer, $global_merger));
 push (@parsers, new DescargasReportGenerator($conf, $writer, $global_merger));
 # Browsers report
-my $BrowsersReportGenerator = SimpleReportGenerator->new($conf, $writer, $global_merger);
-$BrowsersReportGenerator->field('c-agent');
-$BrowsersReportGenerator->file_name('browsers.json');
-push (@parsers, $BrowsersReportGenerator);
+my $browsers_report_generator = SimpleReportGenerator->new($conf, $writer, $global_merger);
+$browsers_report_generator->field('c-agent');
+$browsers_report_generator->file_name('browsers.json');
+push (@parsers, $browsers_report_generator);
 
 my $parser = Parser->new( \@parsers, $conf);
 my @files = map {$conf->log_dir.$_} @{Utils->get_files_list($conf->log_dir, $conf->web_file_patterns)};
