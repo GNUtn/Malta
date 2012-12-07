@@ -64,10 +64,10 @@ sub update_globals {
 
 	$self->write( $globals, $output_dir . "internal/", $filename );
 	
-#	my $aaData = $report_generator->get_flattened_data;
-#	
-#	my %data = ( aaData => $aaData );
-#	$self->write_top( \%data, $report_generator->get_sort_field, $output_dir."datatables/", $filename );
+	my $aaData = $report_generator->get_flattened_data($globals);
+	
+	my %data = ( aaData => $aaData );
+	$self->write_top( \%data, $report_generator->get_sort_field, $output_dir."datatables/", $filename );
 
 }
 

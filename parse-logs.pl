@@ -56,7 +56,7 @@ push (@parsers, new UsuarioTraficoReportGenerator($conf, $writer, $global_merger
 push (@parsers, new PaginaUsuariosReportGenerator($conf, $writer, $global_merger));
 push (@parsers, new DescargasReportGenerator($conf, $writer, $global_merger));
 # Browsers report
-my $browsers_report_generator = SimpleReportGenerator->new($conf, $writer, $global_merger);
+my $browsers_report_generator = BrowserReportGenerator->new($conf, $writer, $global_merger);;
 $browsers_report_generator->field('c-agent');
 $browsers_report_generator->file_name('browsers.json');
 push (@parsers, $browsers_report_generator);

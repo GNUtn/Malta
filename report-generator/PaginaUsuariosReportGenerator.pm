@@ -22,15 +22,15 @@ sub get_file_name {
 }
 
 sub get_flattened_data {
-	my ($self, $key) = @_;
+	my ($self, $hash_ref) = @_;
 	my @aaData = ();
-	foreach my $usuario ( keys %{ $self->data_hash->{$key} } ) {
-		foreach my $pagina ( keys %{ $self->data_hash->{$key}->{$usuario} } ) {
+	foreach my $usuario ( keys %$hash_ref ) {
+		foreach my $pagina ( keys %{ $hash_ref->{$usuario} } ) {
 			my %entry;
 			$entry{usuario} = $usuario;
 			$entry{pagina}  = $pagina;
-			$entry{ocurrencias} = $self->data_hash->{$key}->{$usuario}->{$pagina}->{ocurrencias};
-			$entry{trafico} =  $self->data_hash->{$key}->{$usuario}->{$pagina}->{trafico};
+			$entry{ocurrencias} = $hash_ref->{$usuario}->{$pagina}->{ocurrencias};
+			$entry{trafico} =  $hash_ref->{$usuario}->{$pagina}->{trafico};
 			push @aaData, \%entry;
 		}
 	}

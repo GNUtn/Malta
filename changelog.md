@@ -7,6 +7,10 @@ Changelog
   - Se agregan los reportes de:
     * Archivos Descargados
     * Protocolos del Firewall
+    * Browsers
+    * URLs NO Categorizadas
+    * Clientes Únicos
+  - Corrida incremental mergeando las estadísticas globales
 
 ## Versión 0.3 ##
 

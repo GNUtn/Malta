@@ -30,13 +30,13 @@ sub get_entry {
 }
 
 sub get_flattened_data {
-	my ($self, $key) = @_;
+	my ($self, $hash_ref) = @_;
 	my @aaData = ();
-	foreach my $destino ( keys %{ $self->data_hash->{$key} } ) {
+	foreach my $destino ( keys %$hash_ref ) {
 		my %entry;
 		$entry{destino} = $destino;
-		$entry{ocurrencias} = $self->data_hash->{$key}->{$destino}->{ocurrencias};
-		$entry{trafico} = $self->data_hash->{$key}->{$destino}->{trafico};
+		$entry{ocurrencias} = $hash_ref->{$destino}->{ocurrencias};
+		$entry{trafico} = $hash_ref->{$destino}->{trafico};
 		push @aaData, \%entry;
 	}
 	return \@aaData;
