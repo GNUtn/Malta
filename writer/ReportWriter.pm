@@ -55,6 +55,7 @@ sub write_report {
 		my %data = ( aaData => $aaData );
 
 		$self->write_top( \%data, $report_generator->get_sort_field, $output_dir . 'datatables/' . $date_output_dir, $file_name );
+		$self->write_binary($data_hash->{$date}, $output_dir . 'internal/' . $date_output_dir, $file_name);
 	}
 
 	$self->update_globals( $data_hash, $report_generator, $output_dir, $file_name );
