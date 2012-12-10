@@ -32,6 +32,18 @@ sub parse_values {
 	}
 }
 
+sub get_flattened_data {
+        my ($self, $hash_ref) = @_;
+        my @aaData = ();
+        foreach my $query ( keys %$hash_ref ) {
+                my %entry;
+                $entry{ocurrencias} = $hash_ref->{$query}->{ocurrencias};
+                $entry{query} = $query;
+                push @aaData, \%entry;
+        }
+        return \@aaData;
+}
+
 sub get_file_name {
 	return "searchs.json";
 }

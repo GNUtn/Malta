@@ -40,6 +40,19 @@ sub parse_values {
 	}
 }
 
+sub get_flattened_data {
+        my ($self, $hash_ref) = @_;
+        my @aaData = ();
+        foreach my $file ( keys %$hash_ref ) {
+                my %entry;
+                $entry{archivo} = $file;
+                $entry{transferencia} = $hash_ref->{$file}->{transferencia};
+                $entry{descargas} = $hash_ref->{$file}->{descargas};
+                push @aaData, \%entry;
+        }
+        return \@aaData;
+}
+
 sub filter_by_mime_type {
 	my ( $self, $mime_type ) = @_;
 
