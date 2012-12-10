@@ -1,6 +1,10 @@
 Changelog
 =========
 
+## Versión 0.3.2 ##
+
+  - Se guardan los archivos internos con el módulo Storable para mejorar la performance y reducir el espacio en disco.
+
 ## Versión 0.3.1 ##
 
   - Se agrega la posibilidad de parsear archivos del Firewall

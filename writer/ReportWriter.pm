@@ -5,7 +5,7 @@ require 'GlobalMerger.pm';
 require 'DataHashFlatten.pm';
 use JSON;
 use File::Path qw(make_path);
-use File::Slurp;
+use Storable;
 
 #TODO: This class needs refactor!
 
@@ -21,7 +21,7 @@ around BUILDARGS => sub {
 	return $class->$orig( config => $_[0], );
 };
 
-sub write {
+sub write_JSON {
 	my ( $self, $data, $output_dir, $filename ) = @_;
 	$self->create_dir($output_dir);
 	my $file = $output_dir . $filename;
@@ -29,6 +29,13 @@ sub write {
 		Log::Log4perl->get_logger("ReportWriter")->logdie( $file, $! );
 	print FILEOUT JSON->new->pretty(1)->encode($data);
 	close FILEOUT;
+}
+
+sub write_binary {
+	my ( $self, $data, $output_dir, $filename ) = @_;
+	$self->create_dir($output_dir);
+	my $file = $output_dir . $filename;
+	store $data, $file;
 }
 
 sub write_report {
@@ -62,7 +69,7 @@ sub update_globals {
 		$report_generator->global_merger->merge( $globals, $data_hash->{$date}, $report_generator->get_level );
 	}
 
-	$self->write( $globals, $output_dir . "internal/", $filename );
+	$self->write_binary( $globals, $output_dir . "internal/", $filename );
 	
 	my $aaData = $report_generator->get_flattened_data($globals);
 	
@@ -75,8 +82,7 @@ sub load_globals {
 	my ( $self, $file ) = @_;
 	my $globals = {};
 	if ( -f $file ) {
-		my $text = read_file($file);
-		$globals = JSON->new->decode($text);
+		$globals = retrieve($file);
 	}
 	return $globals;
 }
@@ -89,7 +95,7 @@ sub write_top {
 		@new = @new[ 0 .. $self->config->top_limit ];
 		$data->{aaData} = \@new;
 	}
-	$self->write( $data, $output_dir, $file_name );
+	$self->write_JSON( $data, $output_dir, $file_name );
 
 }
 

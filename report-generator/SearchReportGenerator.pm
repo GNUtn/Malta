@@ -1,7 +1,6 @@
 package SearchReportGenerator;
 use Mouse;
 use URI::QueryParam;
-use Data::Dumper;
 extends 'ReportGenerator';
 require 'Utils.pm';
 

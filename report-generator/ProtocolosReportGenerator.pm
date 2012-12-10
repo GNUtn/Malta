@@ -2,7 +2,6 @@ package ProtocolosReportGenerator;
 use Mouse;
 extends 'ReportGenerator';
 require 'Utils.pm';
-use Data::Dumper;
 
 sub parse_values {
 	my ( $self, $values ) = @_;
