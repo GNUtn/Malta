@@ -23,7 +23,6 @@ has 'mime_types' => (
 
 sub parse_values {
 	my ( $self, $values ) = @_;
-	my $date = @$values[ $self->config->{fields}->{'date'} ];
 	my $uri =
 	  $self->parse_url( @$values[ $self->config->{fields}->{'cs-uri'} ] );
 	eval { $uri->host; $uri->path };
@@ -33,6 +32,7 @@ sub parse_values {
 		if (   $self->is_file( $uri->path )
 			&& $self->filter_by_mime_type( shift(@mime_type) ) )
 		{
+			my $date = @$values[ $self->config->{fields}->{'date'} ];
 			my $entry = $self->get_entry( $date, $uri->host . $uri->path );
 			$entry->{descargas} += 1;
 			$entry->{transferencia} += $self->get_trafico($values);
