@@ -11,6 +11,9 @@ Changelog
     * URLs NO Categorizadas
     * Clientes Únicos
   - Corrida incremental mergeando las estadísticas globales
+  - Parámetros por consola para el script principal:
+  	* Regex pattern para archivos que tiene que parsear (-w regex y -f regex para archivos web y firewall respectivamente)
+  	* Carpetas de entrada y salida (-i input/folder/ -o output/folder/ para carpeta de entrada y salida respectivamente)
 
 ## Versión 0.3 ##
 

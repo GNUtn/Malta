@@ -22,7 +22,7 @@ has 'debug' => (
 has 'version' => (
 	is      => 'ro',
 	isa     => 'Str',
-	default => '0.3'
+	default => '0.3.1'
 );
 
 has 'field_sep' => (
@@ -130,7 +130,7 @@ has 'search_length' => (
 has 'top_limit' => (
 	is      => 'rw',
 	isa     => 'Int',
-	default => '10000'
+	default => '5000'
 );
 
 has 'web_file_patterns' => (

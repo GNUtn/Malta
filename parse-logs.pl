@@ -38,11 +38,16 @@ my $global_merger = GlobalMerger->new();
 my @parsers = ();
 our $opt_f;
 our $opt_w;
+our $opt_i;
+our $opt_o;
 
 #Parse cmd params
-getopts('w:f:');
+getopts('w:f:i:o:');
 $conf->web_file_patterns($opt_w) if $opt_w;
 $conf->fws_file_patterns($opt_f) if $opt_f;
+$conf->log_dir($opt_i) if $opt_i;
+$conf->output_dir($opt_o) if $opt_o;
+
 
 push (@parsers, new GlobalStatsReportGenerator($conf, $writer, $global_merger));
 #push (@parsers, new HostsReportGenerator($conf, $writer));
