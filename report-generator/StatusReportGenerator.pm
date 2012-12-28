@@ -1,8 +1,6 @@
 package StatusReportGenerator;
 use Mouse;
-require 'DataHashFlatten.pm';
 extends 'ReportGenerator';
-require 'Utils.pm';
 
 sub parse_values {
 	my ( $self, $values ) = @_;

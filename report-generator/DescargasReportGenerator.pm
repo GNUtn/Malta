@@ -2,7 +2,6 @@ package DescargasReportGenerator;
 use Mouse;
 use MouseX::NativeTraits::ArrayRef;
 extends 'ReportGenerator';
-require 'Utils.pm';
 
 has 'mime_types' => (
 	traits     => ['Array'],
@@ -41,16 +40,17 @@ sub parse_values {
 }
 
 sub get_flattened_data {
-        my ($self, $hash_ref) = @_;
-        my @aaData = ();
-        foreach my $file ( keys %$hash_ref ) {
-                my %entry;
-                $entry{archivo} = $file;
-                $entry{transferencia} = $hash_ref->{$file}->{transferencia};
-                $entry{descargas} = $hash_ref->{$file}->{descargas};
-                push @aaData, \%entry;
-        }
-        return \@aaData;
+	my ($self, $hash_ref) = @_;
+	my @aaData = ();
+	foreach my $file ( keys %$hash_ref ) {
+		my %entry;
+		$entry{archivo} = $file;
+		$entry{transferencia} = $hash_ref->{$file}->{transferencia};
+		$entry{descargas} = $hash_ref->{$file}->{descargas};
+		push @aaData, \%entry;
+	}
+	my $aaData = {aaData => \@aaData};
+	return $aaData;
 }
 
 sub filter_by_mime_type {

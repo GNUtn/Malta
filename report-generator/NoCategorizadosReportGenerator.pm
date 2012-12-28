@@ -1,7 +1,6 @@
 package NoCategorizadosReportGenerator;
 use Mouse;
 extends 'ReportGenerator';
-require 'Utils.pm';
 
 sub get_file_name {
 	return "no_categorized.json";
@@ -19,7 +18,7 @@ sub parse_values {
 			my $entry = $self->get_entry( $date, $uri->host );
 			$entry->{ocurrencias} += 1;
 			$entry->{trafico} += $self->get_trafico($values);
-		}	
+		}
 	}
 }
 

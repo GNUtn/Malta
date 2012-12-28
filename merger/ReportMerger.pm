@@ -1,4 +1,4 @@
-package GlobalMerger;
+package ReportMerger;
 use Mouse;
 
 sub merge {

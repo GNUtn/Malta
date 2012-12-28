@@ -1,14 +1,12 @@
 package DataHashFlatten;
+use Sub::Recursive;
 
 require 5.005_62;
 use strict;
 use warnings;
 
-our @flattened=();
-
-sub flatten {
-	my ( $class, $level, $href, $field, $depth, $flat_rec ) = @_;
-	@flattened=() unless defined($depth);
+my $flat =  recursive {
+	my ( $level, $href, $field, $depth, $flat_rec, $flattened ) = @_;
 	$depth     = 0  unless defined($depth);
 	my @key = keys %$href;
 
@@ -17,9 +15,9 @@ sub flatten {
 			my $key = $key[$key_i];
 			$flat_rec->{ $field->[$depth] } = $key;
 
-			$class->flatten(
+			$REC->(
 				$level,     $href->{$key}, $field,
-				$depth + 1, $flat_rec,     @flattened
+				$depth + 1, $flat_rec,     $flattened
 			);
 		}
 	}
@@ -28,10 +26,17 @@ sub flatten {
 			$flat_rec->{$key} = ${$href}{$key};
 		}
 		my %new_rec = %{$flat_rec};
-		push @flattened, \%new_rec;
+		push @$flattened, \%new_rec;
 	}
 
-	\@flattened;
+	$flattened;
+};
+
+sub flatten {
+	my ( $class, $level, $href, $field, $depth, $flat_rec ) = @_;
+	my @flattened;
+	$flat->($level, $href, $field, $depth, $flat_rec, \@flattened);
+	return @flattened;
 }
 
 1;

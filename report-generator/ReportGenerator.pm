@@ -23,31 +23,33 @@ has 'config' => (
 	isa => 'Configuration',
 );
 
-has 'global_merger' => (
+has 'report_merger' => (
 	is  => 'rw',
-	isa => 'GlobalMerger',
+	isa => 'ReportMerger',
 );
-
-around BUILDARGS => sub {
-	my ($orig, $class, $config, $writer, $global_merger) = @_;
-
-	return $class->$orig(
-		config => $config,
-		writer => $writer,
-		global_merger => $global_merger 
-	);
-};
 
 sub write_report {
 	my ( $self, $output_dir ) = @_;
 	
-	$self->writer->write_report($self->data_hash, $self, $output_dir, $self->get_file_name);
+	my $logger = Log::Log4perl->get_logger("ReportGenerator");
+	foreach my $date ( keys %{$self->{data_hash}} ) {
 
+		my $date_output_dir = Date->new($date)->to_string('/') . "/";
+		
+		$logger->debug("Flattening data");
+		my $aaData = $self->get_flattened_data($self->{data_hash}->{$date});
+
+		$logger->debug("Writing data");
+		$self->writer->write_top( $aaData, $self->get_sort_field, $output_dir . 'datatables/' . $date_output_dir, $self->get_file_name );
+		Hashes->store_hash($self->{data_hash}->{$date}, $output_dir . 'internal/' . $date_output_dir, $self->get_file_name);
+	}
 }
 
 sub get_flattened_data {
 	my ($self, $hash_ref) = @_;
-	return DataHashFlatten->flatten( $self->get_level(), $hash_ref, $self->get_fields() );
+	my @aaData = DataHashFlatten->flatten( $self->get_level(), $hash_ref, $self->get_fields() );
+	my %data = ( aaData => \@aaData );
+	return \%data;
 }
 
 sub parse_url {

@@ -1,6 +1,6 @@
-package StatusGlobalMerger;
+package StatusReportMerger;
 use Mouse;
-extends 'GlobalMerger';
+extends 'ReportMerger';
 
 sub merge_values {
 	my ($self, $orig, $new, $key) = @_;

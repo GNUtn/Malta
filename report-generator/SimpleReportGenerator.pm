@@ -1,7 +1,6 @@
 package SimpleReportGenerator;
 use Mouse;
 extends 'ReportGenerator';
-require 'Utils.pm';
 
 # El nombre del campo sobre el que se realiza la cuenta.
 has 'field' =>(

@@ -4,6 +4,13 @@ Changelog
 ## Versión 0.3.2 ##
 
   - Se guardan los archivos internos con el módulo Storable para mejorar la performance y reducir el espacio en disco.
+  - Se divide el proceso de logs en parseo del día y actualización de datos globales.
+  - Se agrega la posiblidad de generar reportes semanales, mensuales o de cualquier intervalo de fechas.
+  - Optimización en la traducción de datos a formato datatables utilizando el módulo Sub::Recursive.
+  - Refactor de código para mejor organización y mayor flexibilidad.
+  - Se agregan archivos bash para cronear reportes diarios y semanales.
+  - Configuraciones por parámetro de línea de comandos.
+  
 
 ## Versión 0.3.1 ##
 

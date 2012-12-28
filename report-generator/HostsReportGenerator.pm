@@ -1,7 +1,6 @@
 package HostsReportGenerator;
 use Mouse;
 extends 'ReportGenerator';
-require 'Utils.pm';
 
 sub parse_values {
 	my ( $self, $values ) = @_;
@@ -22,7 +21,7 @@ sub post_process {
 	foreach my $date (keys %{ $self->data_hash }) {
 		foreach my $host ( keys %{ $self->data_hash->{$date} } ) {
 			my $entry = $self->data_hash->{$date}->{$host};
-			$entry->{last_occurrence} = $entry->{last_occurrence}->to_string;
+			$entry->{last_occurrence} = $entry->{last_occurrence}->to_string('-');
 		}
 	}
 }

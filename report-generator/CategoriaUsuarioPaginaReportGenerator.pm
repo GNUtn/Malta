@@ -1,7 +1,6 @@
 package CategoriaUsuarioPaginaReportGenerator;
 use Mouse;
 extends 'ReportGenerator';
-require 'Utils.pm';
 
 sub parse_values {
 	my ( $self, $values ) = @_;
@@ -50,7 +49,8 @@ sub get_flattened_data {
 			}
 		}
 	}
-	return \@aaData;
+	my $aaData = {aaData => \@aaData};
+	return $aaData;
 }
 
 sub new_entry {

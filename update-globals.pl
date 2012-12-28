@@ -30,6 +30,7 @@ require 'ProtocolosReportGenerator.pm';
 require 'SimpleReportGenerator.pm';
 require 'BrowserReportGenerator.pm';
 require 'NoCategorizadosReportGenerator.pm';
+require 'GlobalsMerger.pm';
 use Log::Log4perl;
 use Getopt::Std;
 
@@ -38,35 +39,24 @@ my $t0 = Benchmark->new;
 my $conf = Configuration->new;
 my $writer = ReportWriter->new(config => $conf);
 my $report_merger = ReportMerger->new;
-my @reports = ();
 our ($opt_f, $opt_w, $opt_i, $opt_o, $opt_d);
-my @dates_to_parse;
+my @dates_to_merge;
+my $log = Log::Log4perl->get_logger("main");
 
 parse_cmd_params('w:f:i:o:d:');
 
-get_selected_reports();
+my @reports = get_selected_reports();
 
-my $parser = Parser->new( report_generators => \@reports, config => $conf);
-my @files = map {$conf->log_dir.$_} @{Files->list_files($conf->log_dir, $conf->web_file_patterns)};
+my $global_merger = GlobalsMerger->new(reports => \@reports, config => $conf);
 
-$parser->parse_files(\@files, \@dates_to_parse);
-
-$writer->write_version($conf->output_dir);
-
-#PArse firewall files
-
-undef @reports;
-push (@reports, ProtocolosReportGenerator->new(config => $conf, writer => $writer, report_merger => $report_merger));
-#-------------------------------------------------------------------
-$conf->fields($conf->firewall_fields);#<-- TODO: esto es muy tricky...
-#-------------------------------------------------------------------
-@files = map {$conf->log_dir.$_} @{Files->list_files($conf->log_dir, $conf->fws_file_patterns)};
-$parser->parse_files(\@files, \@dates_to_parse);
+foreach my $date (@dates_to_merge) {
+	$log->info("Merging date: ", $date->to_string('/'));
+	$global_merger->merge_globals($date);
+}
 
 my $tf = Benchmark->new;
 my $td = timediff($tf, $t0);
 
-my $log = Log::Log4perl->get_logger("main");
 
 $log->info("Done.");
 $log->info("Time elapsed: ", timestr($td));
@@ -86,14 +76,14 @@ sub parse_cmd_params {
 	die "You must specify the dates to be parsed (-d yyyy-mm-dd,yyyy-mm-dd,...)" unless $opt_d;
 	my @dates = split ',', $opt_d;
 	foreach my $date (@dates) {
-		push @dates_to_parse, Date->new($date);
-		Log::Log4perl->get_logger("main")->debug("Added date to parse: $date");
+		push @dates_to_merge, Date->new($date);
+		Log::Log4perl->get_logger("main")->debug("Added date to update: $date");
 	}
 }
 
 sub get_selected_reports {
 	#TODO: Implement a configuration to select which reports to generate
-	
+	my @reports;
 	push (@reports, GlobalStatsReportGenerator->new(config => $conf, writer => $writer, report_merger => $report_merger));
 	#push (@reports, HostsReportGenerator->new(config => $conf, writer => $writer, report_merger => $report_merger));
 	push (@reports, PaginasReportGenerator->new(config => $conf, writer => $writer, report_merger => $report_merger));
@@ -113,4 +103,6 @@ sub get_selected_reports {
 	# Clientes unicos
 	push (@reports, SimpleReportGenerator->new(config => $conf, writer => $writer, report_merger => $report_merger,
 													field => 'cs-username', file_name => 'clients.json' ));
+	push (@reports, ProtocolosReportGenerator->new(config => $conf, writer => $writer, report_merger => $report_merger));
+	return @reports;
 }

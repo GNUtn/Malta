@@ -22,7 +22,7 @@ has 'debug' => (
 has 'version' => (
 	is      => 'ro',
 	isa     => 'Str',
-	default => '0.3.1'
+	default => '0.3.2'
 );
 
 has 'field_sep' => (
@@ -137,7 +137,6 @@ has 'web_file_patterns' => (
 	is  => 'rw',
 	isa => 'Str',
 
-	#Default: Matches all files except "." and ".."
 	default => 'ISALOG_.*_WEB_.*'
 );
 
@@ -145,7 +144,6 @@ has 'fws_file_patterns' => (
 	is  => 'rw',
 	isa => 'Str',
 
-	#Default: Matches all files except "." and ".."
 	default => 'ISALOG_.*_FWS_.*'
 );
 1;

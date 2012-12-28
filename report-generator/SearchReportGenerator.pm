@@ -2,7 +2,6 @@ package SearchReportGenerator;
 use Mouse;
 use URI::QueryParam;
 extends 'ReportGenerator';
-require 'Utils.pm';
 
 sub parse_values {
 	#Por ahora, sólo busca para google, yahoo, bing y algún otro que
@@ -32,15 +31,16 @@ sub parse_values {
 }
 
 sub get_flattened_data {
-        my ($self, $hash_ref) = @_;
-        my @aaData = ();
-        foreach my $query ( keys %$hash_ref ) {
-                my %entry;
-                $entry{ocurrencias} = $hash_ref->{$query}->{ocurrencias};
-                $entry{query} = $query;
-                push @aaData, \%entry;
-        }
-        return \@aaData;
+	my ($self, $hash_ref) = @_;
+	my @aaData = ();
+	foreach my $query ( keys %$hash_ref ) {
+		my %entry;
+		$entry{ocurrencias} = $hash_ref->{$query}->{ocurrencias};
+		$entry{query} = $query;
+		push @aaData, \%entry;
+	}
+	my $aaData = {aaData => \@aaData};
+	return $aaData;
 }
 
 sub get_file_name {

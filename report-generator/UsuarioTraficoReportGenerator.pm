@@ -1,7 +1,6 @@
 package UsuarioTraficoReportGenerator;
 use Mouse;
 extends 'ReportGenerator';
-require 'Utils.pm';
 
 sub parse_values {
 	my ( $self, $values ) = @_;
