@@ -28,14 +28,17 @@ require 'SimpleReportGenerator.pm';
 require 'BrowserReportGenerator.pm';
 require 'NoCategorizadosReportGenerator.pm';
 require 'DaysIntervalMerger.pm';
+require 'Level0ReportMerger.pm';
+require 'Level1ReportMerger.pm';
+require 'Level2ReportMerger.pm';
+require 'Level3ReportMerger.pm';
+require 'StatusReportMerger.pm';
 use Log::Log4perl;
 use Getopt::Std;
 
 Log::Log4perl->init("configuration/log4perl.conf");
 my $t0 = Benchmark->new;
-my $conf = Configuration->new();
-my $writer = ReportWriter->new(config => $conf);
-my $report_merger = ReportMerger->new();
+my $conf = Configuration->instance;
 my @report_generators = ();
 
 our ($opt_f, $opt_t, $opt_i, $opt_o);
@@ -49,27 +52,25 @@ my ($date_from, $date_to);
 defined $opt_f ? $date_from = Date->new($opt_f) : die "You must specify an starting date to generate the report (-f yyyy-mm-dd)";
 defined $opt_t ? $date_to = Date->new($opt_t) : die "You must specify a finishing date to generate the report (-f yyyy-mm-dd)";
 
-push (@report_generators, GlobalStatsReportGenerator->new(config => $conf, writer => $writer, report_merger => $report_merger));
+push (@report_generators, GlobalStatsReportGenerator->new);
 #push (@parsers, HostsReportGenerator->new(config => $conf, writer => $writer, report_merger => $global_merger));
-push (@report_generators, PaginasReportGenerator->new(config => $conf, writer => $writer, report_merger => $report_merger));
-push (@report_generators, StatusReportGenerator->new(config => $conf, writer => $writer, report_merger => StatusReportMerger->new()));
-push (@report_generators, CategoriasReportGenerator->new(config => $conf, writer => $writer, report_merger => $report_merger));
-push (@report_generators, CategoriaUsuarioReportGenerator->new(config => $conf, writer => $writer, report_merger => $report_merger));
-push (@report_generators, CategoriaUsuarioPaginaReportGenerator->new(config => $conf, writer => $writer, report_merger => $report_merger));
-push (@report_generators, SearchReportGenerator->new(config => $conf, writer => $writer, report_merger => $report_merger));
-push (@report_generators, UsuarioTraficoReportGenerator->new(config => $conf, writer => $writer, report_merger => $report_merger));
-push (@report_generators, PaginaUsuariosReportGenerator->new(config => $conf, writer => $writer, report_merger => $report_merger));
-push (@report_generators, DescargasReportGenerator->new(config => $conf, writer => $writer, report_merger => $report_merger));
-push (@report_generators, NoCategorizadosReportGenerator->new(config => $conf, writer => $writer, report_merger => $report_merger));
+push (@report_generators, PaginasReportGenerator->new);
+push (@report_generators, StatusReportGenerator->new);
+push (@report_generators, CategoriasReportGenerator->new);
+push (@report_generators, CategoriaUsuarioReportGenerator->new);
+push (@report_generators, CategoriaUsuarioPaginaReportGenerator->new);
+push (@report_generators, SearchReportGenerator->new);
+push (@report_generators, UsuarioTraficoReportGenerator->new);
+push (@report_generators, PaginaUsuariosReportGenerator->new);
+push (@report_generators, DescargasReportGenerator->new);
+push (@report_generators, NoCategorizadosReportGenerator->new);
 # Browsers report
-push (@report_generators, BrowserReportGenerator->new(config => $conf, writer => $writer, report_merger => $report_merger, 
-												field => 'c-agent', file_name => 'browsers.json'));
+push (@report_generators, BrowserReportGenerator->new(field => 'c-agent'));
 
 # Clientes unicos
-push (@report_generators, SimpleReportGenerator->new(config => $conf, writer => $writer, report_merger => $report_merger,
-												field => 'cs-username', file_name => 'clients.json' ));
+push (@report_generators, SimpleReportGenerator->new(field => 'cs-username', file_name => 'clients.json'));
 
-my $interval_merger = DaysIntervalMerger->new(reports => \@report_generators, config =>$conf);
+my $interval_merger = DaysIntervalMerger->new(reports => \@report_generators);
 $interval_merger->merge_interval($date_from, $date_to);
 
 my $tf = Benchmark->new;

@@ -1,10 +1,12 @@
 package NoCategorizadosReportGenerator;
-use Mouse;
-extends 'ReportGenerator';
+use Moose;
+extends 'AbstractLevel1ReportGenerator';
 
-sub get_file_name {
-	return "no_categorized.json";
-}
+with 'ReportGenerator';
+
+has '+fields' => (default => sub {[qw(categoria)]});
+has '+sort_field' => (default => 'ocurrencias');
+has '+file_name' => (default => 'no_categorized.json');
 
 sub parse_values {
 	my ( $self, $values ) = @_;
@@ -22,33 +24,10 @@ sub parse_values {
 	}
 }
 
-sub get_entry {
-	my ( $self, $date, $categoria ) = @_;
-
-	if ( !exists $self->data_hash->{$date}->{$categoria} ) {
-		$self->data_hash->{$date}->{$categoria} = $self->new_entry;
-	}
-	return $self->data_hash->{$date}->{$categoria};
-}
-
-sub new_entry {
+override 'new_entry' => sub {
 	my ($self) = @_;
 	my %entry = ( ocurrencias => 0, trafico => 0);
 	return \%entry;
-}
-
-sub get_level {
-	my ($self) = @_;
-	return 1;
-}
-
-sub get_fields {
-	my ($self) = @_;
-	return [qw(categoria)];
-}
-
-sub get_sort_field {
-	my ($self) = @_;
-	return 'ocurrencias';
-}
+};
+__PACKAGE__->meta->make_immutable;
 1;

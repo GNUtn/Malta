@@ -1,6 +1,16 @@
 Changelog
 =========
 
+## Versión 0.3.3 ##
+
+  - Se elimina el módulo Data::HashFlatten y toda las funciones recursivas por problemas de memoria.
+  - Reestructuración de todo el código.
+  - Separación de configuración de "top_limit": Valor máximo a guardar por día en formato datatables
+   	(en formato interno se guarda todo). Se agrega el valor "globals_limit", que consiste en la cantidad
+   	de entradas con las que se va a trabajar internamente al guardar estadísticas globales.
+  - Se cambia el framework de objetos Mouse por Moose.
+
+
 ## Versión 0.3.2 ##
 
   - Se guardan los archivos internos con el módulo Storable para mejorar la performance y reducir el espacio en disco.

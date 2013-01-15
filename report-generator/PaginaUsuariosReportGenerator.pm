@@ -1,73 +1,32 @@
 package PaginaUsuariosReportGenerator;
-use Mouse;
-extends 'ReportGenerator';
+use Moose;
+extends 'AbstractLevel2ReportGenerator';
+
+with 'ReportGenerator';
+
+has '+fields' => (default => sub {[qw(usuario pagina)]});
+has '+sort_field' => (default => 'trafico');
+has '+file_name' => (default => 'pagina_usuario.json');
 
 sub parse_values {
 	my ( $self, $values ) = @_;
 
-	my $uri   = $self->parse_url($self->get_url($values));
-	eval {$uri->host; $uri->path};
-	if (!$@) {
+	my $uri = $self->parse_url( $self->get_url($values) );
+	eval { $uri->host; $uri->path };
+	if ( !$@ ) {
 		my $date  = @$values[ $self->config->{fields}->{'date'} ];
 		my $user  = @$values[ $self->config->{fields}->{'cs-username'} ];
-		my $entry = $self->get_entry( $date, $user, lc "http://" . $uri->host . $uri->path );
+		my $entry = $self->get_entry( $date, $user,
+			lc "http://" . $uri->host . $uri->path );
 		$entry->{ocurrencias} += 1;
 		$entry->{trafico} += $self->get_trafico($values);
 	}
 }
 
-sub get_file_name {
-	return "pagina_usuario.json";
-}
-
-sub get_flattened_data {
-	my ($self, $hash_ref) = @_;
-	my @aaData = ();
-	foreach my $usuario ( keys %$hash_ref ) {
-		foreach my $pagina ( keys %{ $hash_ref->{$usuario} } ) {
-			my %entry;
-			$entry{usuario} = $usuario;
-			$entry{pagina}  = $pagina;
-			$entry{ocurrencias} = $hash_ref->{$usuario}->{$pagina}->{ocurrencias};
-			$entry{trafico} =  $hash_ref->{$usuario}->{$pagina}->{trafico};
-			push @aaData, \%entry;
-		}
-	}
-	my $aaData = {aaData => \@aaData};
-	return $aaData;
-}
-
-sub get_entry {
-	my ( $self, $date, $usuario, $pagina ) = @_;
-
-	if ( !exists $self->data_hash->{$date}->{$usuario}->{$pagina} ) {
-		$self->data_hash->{$date}->{$usuario}->{$pagina} = $self->new_entry;
-	}
-
-	return $self->data_hash->{$date}->{$usuario}->{$pagina};
-}
-
-sub new_entry {
+override 'new_entry' => sub {
 	my ($self) = @_;
-	my %entry = (
-		ocurrencias => 0,
-		trafico     => 0
-	);
+	my %entry = ( ocurrencias => 0, trafico => 0 );
 	return \%entry;
-}
-
-sub get_level {
-	my ($self) = @_;
-	return 2;
-}
-
-sub get_fields {
-	my ($self) = @_;
-	return [qw(usuario pagina)];
-}
-
-sub get_sort_field {
-	my ($self) = @_;
-	return 'trafico';
-}
+};
+__PACKAGE__->meta->make_immutable;
 1;

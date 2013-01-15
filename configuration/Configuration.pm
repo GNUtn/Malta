@@ -1,5 +1,5 @@
 package Configuration;
-use Mouse;
+use MooseX::Singleton;
 
 has 'log_dir' => (
 	is      => 'rw',
@@ -22,7 +22,7 @@ has 'debug' => (
 has 'version' => (
 	is      => 'ro',
 	isa     => 'Str',
-	default => '0.3.2'
+	default => '0.3.3'
 );
 
 has 'field_sep' => (
@@ -133,6 +133,12 @@ has 'top_limit' => (
 	default => '5000'
 );
 
+has 'globals_limit' => (
+	is      => 'rw',
+	isa     => 'Int',
+	default => '150000'
+);
+
 has 'web_file_patterns' => (
 	is  => 'rw',
 	isa => 'Str',
@@ -146,4 +152,5 @@ has 'fws_file_patterns' => (
 
 	default => 'ISALOG_.*_FWS_.*'
 );
+__PACKAGE__->meta->make_immutable;
 1;

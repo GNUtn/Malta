@@ -1,5 +1,5 @@
 package Files;
-use Mouse;
+use Moose;
 use File::Path qw(make_path);
 
 sub create_dir {
@@ -18,4 +18,5 @@ sub list_files {
 	closedir $dir;
 	return \@files;
 }
+__PACKAGE__->meta->make_immutable;
 1;

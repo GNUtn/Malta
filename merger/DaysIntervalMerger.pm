@@ -1,5 +1,5 @@
 package DaysIntervalMerger;
-use Mouse;
+use Moose;
 extends 'Merger';
 
 sub merge_interval {
@@ -42,4 +42,5 @@ sub get_dates_range {
 	push @dates, $date_to;
 	return @dates;
 }
+__PACKAGE__->meta->make_immutable;
 1;

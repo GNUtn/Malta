@@ -1,6 +1,12 @@
 package CategoriasReportGenerator;
-use Mouse;
-extends 'ReportGenerator';
+use Moose;
+extends 'AbstractLevel1ReportGenerator';
+
+with 'ReportGenerator';
+
+has '+fields' => (default => sub {[qw(categoria)]});
+has '+sort_field' => (default => 'ocurrencias');
+has '+file_name' => (default => 'categorias.json');
 
 sub parse_values {
 	my ( $self, $values ) = @_;
@@ -13,39 +19,5 @@ sub parse_values {
 		$entry->{ocurrencias} += 1;
 	}
 }
-
-sub get_file_name {
-	return "categorias.json";
-}
-
-sub get_entry {
-	my ( $self, $date, $categoria ) = @_;
-
-	if ( !exists $self->data_hash->{$date}->{$categoria} ) {
-		$self->data_hash->{$date}->{$categoria} = $self->new_entry;
-	}
-
-	return $self->data_hash->{$date}->{$categoria};
-}
-
-sub new_entry {
-	my ($self) = @_;
-	my %entry = ( ocurrencias => 0, );
-	return \%entry;
-}
-
-sub get_level {
-	my ($self) = @_;
-	return 1;
-}
-
-sub get_fields {
-	my ($self) = @_;
-	return [qw(categoria)];
-}
-
-sub get_sort_field {
-	my ($self) = @_;
-	return 'ocurrencias';
-}
+__PACKAGE__->meta->make_immutable;
 1;

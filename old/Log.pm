@@ -3,7 +3,7 @@
 #use warnings;
 
 package Log;
-use Mouse;
+use Moose;
 use diagnostics;
 #use MooseX::Types::DateTime ;
 use DateTime;

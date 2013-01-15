@@ -1,6 +1,12 @@
 package UsuarioTraficoReportGenerator;
-use Mouse;
-extends 'ReportGenerator';
+use Moose;
+extends 'AbstractLevel1ReportGenerator';
+
+with 'ReportGenerator';
+
+has '+fields' => (default => sub {[qw(usuario)]});
+has '+sort_field' => (default => 'trafico');
+has '+file_name' => (default => 'usuarios_trafico.json');
 
 sub parse_values {
 	my ( $self, $values ) = @_;
@@ -11,39 +17,10 @@ sub parse_values {
 	$entry->{trafico} += $self->get_trafico($values);
 }
 
-sub get_file_name {
-	return "usuarios_trafico.json";
-}
-
-sub get_entry {
-	my ( $self, $date, $user ) = @_;
-	if ( !exists $self->data_hash->{$date}->{$user} ) {
-		$self->data_hash->{$date}->{$user} = $self->new_entry();
-	}
-	return $self->data_hash->{$date}->{$user};
-}
-
-sub new_entry {
+override 'new_entry' => sub {
 	my ($self) = @_;
-	my %entry = (
-		peticiones      => 0,
-		trafico         => 0,
-	);
+	my %entry = ( peticiones => 0, trafico => 0 );
 	return \%entry;
-}
-
-sub get_level {
-	my ($self) = @_;
-	return 1;
-}
-
-sub get_fields {
-	my ($self) = @_;
-	return [qw(usuario)];
-}
-
-sub get_sort_field {
-	my ( $self ) = @_;
-	return 'trafico';
-}
+};
+__PACKAGE__->meta->make_immutable;
 1;

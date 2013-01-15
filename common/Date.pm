@@ -1,5 +1,5 @@
 package Date;
-use Mouse;
+use Moose;
 use Date::Calc qw( Delta_Days Add_Delta_Days );
 
 has 'day' => (
@@ -62,4 +62,5 @@ sub to_string {
 	my ( $self, $sep ) = @_;
 	return sprintf("%d%s%02d%s%02d", $self->year, $sep, $self->month, $sep, $self->day);
 }
+__PACKAGE__->meta->make_immutable;
 1;

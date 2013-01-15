@@ -1,6 +1,12 @@
 package ProtocolosReportGenerator;
-use Mouse;
-extends 'ReportGenerator';
+use Moose;
+extends 'AbstractLevel2ReportGenerator';
+
+with 'ReportGenerator';
+
+has '+fields' => (default => sub {[qw(puerto protocolo)]});
+has '+sort_field' => (default => 'trafico');
+has '+file_name' => (default => 'protocolos.json');
 
 sub parse_values {
 	my ( $self, $values ) = @_;
@@ -19,45 +25,16 @@ sub parse_values {
 	}
 }
 
-#Override
-sub get_trafico {
-	my ( $self, $values ) = @_;
-	return ( @$values[ $self->config->{firewall_fields}->{'bytes sent'} ] +
-		  @$values[ $self->config->{firewall_fields}->{'bytes received'} ] );
-}
-
-sub get_file_name {
-	return "protocolos.json";
-}
-
-sub get_entry {
-	my ( $self, $date, $port, $protocol ) = @_;
-
-	if ( !exists $self->data_hash->{$date}->{$port}->{$protocol} ) {
-		$self->data_hash->{$date}->{$port}->{$protocol} = $self->new_entry;
-	}
-
-	return $self->data_hash->{$date}->{$port}->{$protocol};
-}
-
-sub new_entry {
+override 'new_entry' => sub {
 	my ($self) = @_;
 	my %entry = ( trafico => 0, );
 	return \%entry;
-}
+};
 
-sub get_level {
-	my ($self) = @_;
-	return 2;
-}
-
-sub get_fields {
-	my ($self) = @_;
-	return [qw(puerto protocolo)];
-}
-
-sub get_sort_field {
-	my ($self) = @_;
-	return 'trafico';
-}
+override 'get_trafico' => sub {
+	my ( $self, $values ) = @_;
+	return ( @$values[ $self->config->{firewall_fields}->{'bytes sent'} ] +
+		  @$values[ $self->config->{firewall_fields}->{'bytes received'} ] );
+};
+__PACKAGE__->meta->make_immutable;
 1;

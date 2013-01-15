@@ -1,5 +1,5 @@
 package Parser;
-use Mouse;
+use Moose;
 use List::MoreUtils qw(any);
 
 has 'report_generators' => (
@@ -11,7 +11,7 @@ has 'report_generators' => (
 has 'config' => (
 	is  => 'rw',
 	isa => 'Configuration',
-	required => 1
+	default => sub {Configuration->instance},
 );
 
 sub parse_files {
@@ -76,4 +76,5 @@ sub pre_process_values {
 	my ( $self, $values ) = @_;
 	@$values[ $self->config->{fields}->{'parsed-date'} ] = Date->new(@$values[ $self->config->{fields}->{'date'} ]);
 }
+__PACKAGE__->meta->make_immutable;
 1;

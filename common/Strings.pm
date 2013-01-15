@@ -1,5 +1,5 @@
 package Strings;
-use Mouse;
+use Moose;
 
 sub rstrip {
 	my ( $class, $line ) = @_;
@@ -7,4 +7,5 @@ sub rstrip {
 	$line =~ s/\s+$//;
 	return $line;
 }
+__PACKAGE__->meta->make_immutable;
 1;

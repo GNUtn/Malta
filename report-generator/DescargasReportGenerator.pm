@@ -1,23 +1,28 @@
 package DescargasReportGenerator;
-use Mouse;
-use MouseX::NativeTraits::ArrayRef;
-extends 'ReportGenerator';
+use Moose;
+extends 'AbstractLevel1ReportGenerator';
+
+with 'ReportGenerator';
+
+has '+fields' => (default => sub {[qw(archivo)]});
+has '+sort_field' => (default => 'descargas');
+has '+file_name' => (default => 'descargas.json');
 
 has 'mime_types' => (
-	traits     => ['Array'],
+	traits  => ['Array'],
 	is      => 'rw',
 	isa     => 'ArrayRef',
 	default => sub {
-			["application/octet-stream", "text/html",
+		[
+			"application/octet-stream", "text/html",
 			"text/plain",               "application/zip",
 			"-",                        "",
 			"application/pdf",          "application/x-shockwave-flash",
 			"video/mp3",                "video/mp4",
-			"video/x-flv",              "video/x-m4v"]
+			"video/x-flv",              "video/x-m4v"
+		];
 	},
-	handles    => {
-		filter_mime_types => 'grep'
-	}
+	handles => { filter_mime_types => 'grep' }
 );
 
 sub parse_values {
@@ -39,25 +44,17 @@ sub parse_values {
 	}
 }
 
-sub get_flattened_data {
-	my ($self, $hash_ref) = @_;
-	my @aaData = ();
-	foreach my $file ( keys %$hash_ref ) {
-		my %entry;
-		$entry{archivo} = $file;
-		$entry{transferencia} = $hash_ref->{$file}->{transferencia};
-		$entry{descargas} = $hash_ref->{$file}->{descargas};
-		push @aaData, \%entry;
-	}
-	my $aaData = {aaData => \@aaData};
-	return $aaData;
-}
+override 'new_entry' => sub {
+	my ($self) = @_;
+	my %entry = ( descargas => 0, transferencia => 0 );
+	return \%entry;
+};
 
 sub filter_by_mime_type {
 	my ( $self, $mime_type ) = @_;
 
 	if ( defined($mime_type) ) {
-		return $self->filter_mime_types(sub { $_ eq $mime_type });
+		return $self->filter_mime_types( sub { $_ eq $mime_type } );
 	}
 	return 1;
 }
@@ -69,40 +66,5 @@ sub is_file {
 	return $url =~
 	  m/.*(\.exe|\.rar|\.zip|\.txt|\.pdf|\.swf|\.cab|\.mp3|\.mp4|\.m4v)$/;
 }
-
-sub get_file_name {
-	return "descargas.json";
-}
-
-sub get_entry {
-	my ( $self, $date, $archivo ) = @_;
-
-	if ( !exists $self->data_hash->{$date}->{$archivo} ) {
-		$self->data_hash->{$date}->{$archivo} = $self->new_entry;
-	}
-
-	return $self->data_hash->{$date}->{$archivo};
-}
-
-sub new_entry {
-	my ($self) = @_;
-	my %entry = ( descargas => 0, transferencia => 0 );
-	return \%entry;
-}
-
-sub get_level {
-	my ($self) = @_;
-	return 1;
-}
-
-sub get_fields {
-	my ($self) = @_;
-	return [qw(archivo)];
-}
-
-sub get_sort_field {
-	my ($self) = @_;
-	return 'descargas';
-}
-
+__PACKAGE__->meta->make_immutable;
 1;

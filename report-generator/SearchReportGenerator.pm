@@ -1,9 +1,16 @@
 package SearchReportGenerator;
-use Mouse;
+use Moose;
 use URI::QueryParam;
-extends 'ReportGenerator';
+extends 'AbstractLevel1ReportGenerator';
+
+with 'ReportGenerator';
+
+has '+fields' => (default => sub {[qw(query)]});
+has '+sort_field' => (default => 'ocurrencias');
+has '+file_name' => (default => 'searchs.json');
 
 sub parse_values {
+
 	#Por ahora, sólo busca para google, yahoo, bing y algún otro que
 	#tenga /search?q= en la url
 	my ( $self, $values ) = @_;
@@ -22,59 +29,12 @@ sub parse_values {
 		elsif ( $uri->query_param('p') ) {
 			$query = $uri->query_param('p');
 		}
-		if ( $query && length($query ) > $self->config->search_length ) {
-			my $date  = @$values[ $self->config->{fields}->{'date'} ];
+		if ( $query && length($query) > $self->config->search_length ) {
+			my $date = @$values[ $self->config->{fields}->{'date'} ];
 			my $entry = $self->get_entry( $date, lc $query );
 			$entry->{ocurrencias} += 1;
 		}
 	}
 }
-
-sub get_flattened_data {
-	my ($self, $hash_ref) = @_;
-	my @aaData = ();
-	foreach my $query ( keys %$hash_ref ) {
-		my %entry;
-		$entry{ocurrencias} = $hash_ref->{$query}->{ocurrencias};
-		$entry{query} = $query;
-		push @aaData, \%entry;
-	}
-	my $aaData = {aaData => \@aaData};
-	return $aaData;
-}
-
-sub get_file_name {
-	return "searchs.json";
-}
-
-sub get_entry {
-	my ( $self, $date, $query ) = @_;
-
-	if ( !exists $self->data_hash->{$date}->{$query} ) {
-		$self->data_hash->{$date}->{$query} = $self->new_entry;
-	}
-
-	return $self->data_hash->{$date}->{$query};
-}
-
-sub new_entry {
-	my ($self) = @_;
-	my %entry = ( ocurrencias => 0, );
-	return \%entry;
-}
-
-sub get_level {
-	my ($self) = @_;
-	return 1;
-}
-
-sub get_fields {
-	my ($self) = @_;
-	return [qw(query)];
-}
-
-sub get_sort_field {
-	my ( $self ) = @_;
-	return 'ocurrencias';
-}
+__PACKAGE__->meta->make_immutable;
 1;

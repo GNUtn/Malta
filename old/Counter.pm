@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 
 package Counter;
-use Mouse;
+use Moose;
 
 has 'name' =>(
 	is      => 'ro',

@@ -1,6 +1,13 @@
 package StatusReportGenerator;
-use Mouse;
-extends 'ReportGenerator';
+use Moose;
+extends 'AbstractLevel2ReportGenerator';
+
+with 'ReportGenerator';
+
+has '+fields' => (default => sub {[qw(categoria status)]});
+has '+sort_field' => (default => 'ocurrencias');
+has '+file_name' => (default => 'status.json');
+has '+report_merger' => (default => sub {StatusReportMerger->instance});
 
 sub parse_values {
 	my ( $self, $values ) = @_;
@@ -10,11 +17,16 @@ sub parse_values {
 	$entry->{ocurrencias} += 1;
 }
 
-sub get_file_name {
-	return "status.json";
-}
+override 'new_entry' => sub {
+	my ( $self, $status ) = @_;
+	my %entry = (
+		descripcion => $self->details->{$status},
+		ocurrencias => 0
+	);
+	return \%entry;
+};
 
-sub get_entry {
+override 'get_entry' => sub {
 	my ( $self, $date, $categoria, $status ) = @_;
 
 	if ( !exists $self->data_hash->{$date}->{$categoria}->{$status} ) {
@@ -22,16 +34,7 @@ sub get_entry {
 	}
 
 	return $self->data_hash->{$date}->{$categoria}->{$status};
-}
-
-sub new_entry {
-	my ( $self, $status ) = @_;
-	my %entry = (
-		descripcion => $self->details->{$status},
-		ocurrencias => 0
-	);
-	return \%entry;
-}
+};
 
 sub get_category {
 	my ( $self, $status ) = @_;
@@ -50,21 +53,6 @@ sub get_category {
 	else {
 		return "Other";
 	}
-}
-
-sub get_level {
-	my ($self) = @_;
-	return 2;
-}
-
-sub get_fields {
-	my ($self) = @_;
-	return [qw(categoria status)];
-}
-
-sub get_sort_field {
-	my ( $self ) = @_;
-	return 'ocurrencias';
 }
 
 has 'details' => (
@@ -230,4 +218,5 @@ has 'details' => (
 		return \%details;
 	}
 );
+__PACKAGE__->meta->make_immutable;
 1;

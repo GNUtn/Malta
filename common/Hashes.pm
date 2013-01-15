@@ -1,5 +1,5 @@
 package Hashes;
-use Mouse;
+use Moose;
 use Storable;
 
 sub load_hash_from_storable {
@@ -16,4 +16,5 @@ sub store_hash {
 	Files->create_dir($output_dir);
 	store $hash, $output_dir . $filename;
 }
+__PACKAGE__->meta->make_immutable;
 1;

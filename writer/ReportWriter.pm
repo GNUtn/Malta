@@ -1,10 +1,11 @@
 package ReportWriter;
-use Mouse;
+use MooseX::Singleton;
 use JSON;
 
 has 'config' => (
 	is  => 'rw',
 	isa => 'Configuration',
+	default => sub {Configuration->instance},
 );
 
 sub write_JSON {
@@ -26,7 +27,6 @@ sub write_top {
 		$data->{aaData} = \@new;
 	}
 	$self->write_JSON( $data, $output_dir, $file_name );
-
 }
 
 sub write_version {
@@ -36,4 +36,5 @@ sub write_version {
 	print VERSION $self->config->version;
 	close VERSION;
 }
+__PACKAGE__->meta->make_immutable;
 1;

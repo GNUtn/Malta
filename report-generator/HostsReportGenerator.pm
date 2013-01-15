@@ -1,6 +1,12 @@
 package HostsReportGenerator;
-use Mouse;
-extends 'ReportGenerator';
+use Moose;
+extends 'AbstractLevel1ReportGenerator';
+
+with 'ReportGenerator';
+
+has '+fields' => (default => sub {[qw(host)]});
+has '+sort_field' => (default => 'trafico');
+has '+file_name' => (default => 'hosts.json');
 
 sub parse_values {
 	my ( $self, $values ) = @_;
@@ -16,29 +22,7 @@ sub parse_values {
 	}
 }
 
-sub post_process {
-	my ($self) = @_;
-	foreach my $date (keys %{ $self->data_hash }) {
-		foreach my $host ( keys %{ $self->data_hash->{$date} } ) {
-			my $entry = $self->data_hash->{$date}->{$host};
-			$entry->{last_occurrence} = $entry->{last_occurrence}->to_string('-');
-		}
-	}
-}
-
-sub get_file_name {
-	return "hosts.json";
-}
-
-sub get_entry {
-	my ( $self, $date, $host ) = @_;
-	if ( !exists $self->data_hash->{$date}->{$host} ) {
-		$self->data_hash->{$date}->{$host} = $self->new_entry();
-	}
-	return $self->data_hash->{$date}->{$host};
-}
-
-sub new_entry {
+override 'new_entry' => sub {
 	my ($self) = @_;
 	my %entry = (
 		peticiones      => 0,
@@ -46,20 +30,17 @@ sub new_entry {
 		last_occurrence => Date->new(),
 	);
 	return \%entry;
-}
+};
 
-sub get_level {
+override 'post_process' => sub {
 	my ($self) = @_;
-	return 1;
-}
-
-sub get_fields {
-	my ($self) = @_;
-	return [qw(host)];
-}
-
-sub get_sort_field {
-	my ( $self ) = @_;
-	return 'trafico';
-}
+	super();
+	while (my($date, $dates) = each %{$self->data_hash}) {
+		while (my($host, $hosts) = each %$dates) {
+			my $entry = $self->data_hash->{$date}->{$host};
+			$entry->{last_occurrence} = $entry->{last_occurrence}->to_string('-');
+		}
+	}
+};
+__PACKAGE__->meta->make_immutable;
 1;
