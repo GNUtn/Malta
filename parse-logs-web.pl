@@ -26,7 +26,6 @@ require 'ReportWriter.pm';
 require 'ReportMerger.pm';
 require 'StatusReportMerger.pm';
 require 'DescargasReportGenerator.pm';
-require 'ProtocolosReportGenerator.pm';
 require 'SimpleReportGenerator.pm';
 require 'BrowserReportGenerator.pm';
 require 'NoCategorizadosReportGenerator.pm';
@@ -41,13 +40,11 @@ use Getopt::Std;
 Log::Log4perl->init("configuration/log4perl.conf");
 my $t0 = Benchmark->new;
 my $conf = Configuration->instance;
-my @reports = ();
+my @reports = get_selected_reports();
 our ($opt_f, $opt_w, $opt_i, $opt_o, $opt_d);
 my @dates_to_parse;
 
-parse_cmd_params('w:f:i:o:d:');
-
-get_selected_reports();
+parse_cmd_params('w:i:o:d:');
 
 my $parser = Parser->new( report_generators => \@reports);
 my @files = map {$conf->log_dir.$_} @{Files->list_files($conf->log_dir, $conf->web_file_patterns)};
@@ -55,16 +52,6 @@ my @files = map {$conf->log_dir.$_} @{Files->list_files($conf->log_dir, $conf->w
 $parser->parse_files(\@files, \@dates_to_parse);
 
 ReportWriter->instance->write_version($conf->output_dir);
-
-#PArse firewall files
-
-undef @reports;
-push (@reports, ProtocolosReportGenerator->new);
-#-------------------------------------------------------------------
-$conf->fields($conf->firewall_fields);#<-- TODO: esto es muy tricky...
-#-------------------------------------------------------------------
-@files = map {$conf->log_dir.$_} @{Files->list_files($conf->log_dir, $conf->fws_file_patterns)};
-$parser->parse_files(\@files, \@dates_to_parse);
 
 my $tf = Benchmark->new;
 my $td = timediff($tf, $t0);
@@ -83,7 +70,7 @@ sub parse_cmd_params {
 	my ($params_string) = @_;
 	getopts($params_string);
 	$conf->web_file_patterns($opt_w) if $opt_w;
-	$conf->fws_file_patterns($opt_f) if $opt_f;
+	$conf->fws_file_patterns('');
 	$conf->log_dir($opt_i) if $opt_i;
 	$conf->output_dir($opt_o) if $opt_o;
 	die "You must specify the dates to be parsed (-d yyyy-mm-dd,yyyy-mm-dd,...)" unless $opt_d;
@@ -97,6 +84,7 @@ sub parse_cmd_params {
 sub get_selected_reports {
 	#TODO: Implement a configuration to select which reports to generate
 	
+	my @reports;
 	push (@reports, GlobalStatsReportGenerator->new);
 	#push (@reports, HostsReportGenerator->new);
 	push (@reports, PaginasReportGenerator->new);
@@ -114,4 +102,5 @@ sub get_selected_reports {
 	
 	# Clientes unicos
 	push (@reports, SimpleReportGenerator->new(field => 'cs-username', file_name => 'clients.json' ));
+	return @reports;
 }

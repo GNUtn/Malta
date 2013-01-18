@@ -46,7 +46,7 @@ our ($opt_f, $opt_w, $opt_i, $opt_o, $opt_d);
 my @dates_to_merge;
 my $log = Log::Log4perl->get_logger("main");
 
-parse_cmd_params('w:f:i:o:d:');
+parse_cmd_params('i:o:d:');
 
 my @reports = get_selected_reports();
 
@@ -72,8 +72,6 @@ $log->info("Time elapsed: ", timestr($td));
 sub parse_cmd_params {
 	my ($params_string) = @_;
 	getopts($params_string);
-	$conf->web_file_patterns($opt_w) if $opt_w;
-	$conf->fws_file_patterns($opt_f) if $opt_f;
 	$conf->log_dir($opt_i) if $opt_i;
 	$conf->output_dir($opt_o) if $opt_o;
 	die "You must specify the dates to be parsed (-d yyyy-mm-dd,yyyy-mm-dd,...)" unless $opt_d;
