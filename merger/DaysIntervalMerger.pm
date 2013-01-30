@@ -12,7 +12,7 @@ sub merge_interval {
 			my $new = $self->load_values_for_date( $date, $report->get_file_name );
 			$self->merge_hashes($report->data_hash, $new, $report);
 		}
-		$self->write_report($date_to, $report);
+		$self->write_report($date_from, $report);
 	}
 }
 
@@ -36,10 +36,9 @@ sub get_dates_range {
 	my ($self, $date_from, $date_to) = @_;
 	my @dates;
 	push @dates, $date_from;
-	while ($dates[-1]->compare_to($date_to) < 0) {
+	while ($dates[-1]->compare_to($date_to) > 0) {
 		push @dates, $dates[-1]->get_new_plus_days(1);
 	}
-	push @dates, $date_to;
 	return @dates;
 }
 __PACKAGE__->meta->make_immutable;

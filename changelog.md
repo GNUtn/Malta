@@ -9,6 +9,7 @@ Changelog
    	(en formato interno se guarda todo). Se agrega el valor "globals_limit", que consiste en la cantidad
    	de entradas con las que se va a trabajar internamente al guardar estadísticas globales.
   - Se cambia el framework de objetos Mouse por Moose.
+  - Se separan los procesos de parseo de logs WEB y FIREWALL y actualización de resultados globales en procesos independientes
 
 
 ## Versión 0.3.2 ##
